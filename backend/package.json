@@ -1,0 +1,29 @@
+{
+  "name": "weather-backend",
+  "version": "1.0.0",
+  "description": "Backend API server for WeatherSphere weather application",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "prod": "NODE_ENV=production node server.js"
+  },
+  "keywords": [
+    "weather",
+    "api",
+    "express",
+    "backend"
+  ],
+  "author": "WeatherSphere",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.0.3",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
