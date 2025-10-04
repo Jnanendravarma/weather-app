@@ -2,7 +2,9 @@
 // WeatherSphere v3.0 - Professional Edition
 
 // Configuration
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = window.location.hostname === 'localhost' ? 
+    'http://localhost:5001/api' : 
+    'https://weather-app-backend-jnanendravarma.vercel.app/api';
 
 // Color Themes Configuration
 const THEMES = {
