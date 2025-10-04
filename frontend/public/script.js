@@ -1,13 +1,14 @@
 // Weather App Configuration
-const API_BASE = window.location.origin + '/api'; // Full URL to our backend proxy
+// Update this with your actual deployed backend URL
+const API_BASE = 'https://weather-app-backend-ten-mauve.vercel.app/api'; // Your deployed backend URL
 
 // Helper function to check if server is ready
 async function checkServerStatus() {
     try {
-        const response = await fetch(window.location.origin + '/');
+        const response = await fetch(API_BASE.replace('/api', '') + '/');
         return response.ok;
     } catch (error) {
-        console.warn('⚠️ Server not ready yet, retrying...');
+        console.warn('⚠️ Backend server not reachable, using fallback...');
         return false;
     }
 }
@@ -31,29 +32,10 @@ let voiceSettings = {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async function() {
-    // Check if server is ready before initializing
-    showNotification('🚀 Starting WeatherSphere...', 'info');
+    // Show enhanced welcome message
+    showNotification('🚀 Starting WeatherSphere v3.0 - AI Weather Assistant...', 'info');
     
-    let serverReady = false;
-    let attempts = 0;
-    const maxAttempts = 10;
-    
-    while (!serverReady && attempts < maxAttempts) {
-        serverReady = await checkServerStatus();
-        if (!serverReady) {
-            attempts++;
-            showNotification(`⏳ Waiting for server... (${attempts}/${maxAttempts})`, 'warning');
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-    }
-    
-    if (!serverReady) {
-        showNotification('❌ Server not responding. Please refresh the page.', 'error');
-        return;
-    }
-    
-    showNotification('✅ Server ready! Loading weather data...', 'success');
-    
+    // Initialize all features immediately
     initializeApp();
     createParticleBackground();
     setupEventListeners();
@@ -61,7 +43,21 @@ document.addEventListener('DOMContentLoaded', async function() {
     initializeSpeechFeatures();
     loadUserPreferences();
     
-    // Hide loading screen after initial setup
+    // Auto-detect location immediately for better UX
+    setTimeout(() => {
+        showNotification('📍 Auto-detecting your location for personalized weather...', 'info');
+        getCurrentLocation();
+    }, 1000);
+    
+    // Fallback to default city if geolocation fails or takes too long
+    setTimeout(() => {
+        if (!weatherData) {
+            showNotification('🌍 Loading default weather for London...', 'info');
+            fetchWeatherByCity('London');
+        }
+    }, 5000);
+    
+    // Hide loading screen after setup
     setTimeout(() => {
         const loadingScreen = document.getElementById('loading-screen');
         if (loadingScreen) {
