@@ -84,8 +84,69 @@ let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 let currentTheme = localStorage.getItem('selectedTheme') || 'cosmic';
 
 // Initialize Application
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🌟 Initializing WeatherSphere App...');
+    
+    try {
+        // Initialize theme first
+        initializeTheme();
+        
+        // Setup responsive layout
+        setupResponsiveLayout();
+        
+        // Initialize responsive features
+        initializeResponsiveApp();
+        
+        // Load user preferences
+        loadUserPreferences();
+        
+        // Initialize charts and forecasts with demo data
+        updateChart('temperature');
+        updateForecast('daily');
+        
+        // Show weather dashboard with demo data immediately
+        showDemoWeatherData();
+        
+        // Add touch feedback
+        addTouchFeedback();
+        
+        // Setup event listeners
+        setupEventListeners();
+        
+        // Hide loading screen after initialization
+        setTimeout(() => {
+            hideLoadingScreen();
+        }, 1500);
+        
+        // Auto-load weather for demo (try geolocation, fallback to London)
+        setTimeout(() => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        try {
+                            await fetchWeatherByCoords(position.coords.latitude, position.coords.longitude);
+                        } catch (error) {
+                            console.log('Using demo data for London');
+                            fetchWeatherByCity('London');
+                        }
+                    },
+                    () => {
+                        console.log('Geolocation denied, using demo data for London');
+                        fetchWeatherByCity('London');
+                    }
+                );
+            } else {
+                console.log('Using demo data for London');
+                fetchWeatherByCity('London');
+            }
+        }, 2000);
+        
+        console.log('✅ Weather app initialized successfully with all features');
+        
+    } catch (error) {
+        console.error('❌ Error during app initialization:', error);
+        showNotification('⚠️ App initialization error. Some features may not work properly.', 'error');
+    }
 });
 
 async function initializeApp() {
@@ -513,6 +574,47 @@ async function fetchForecastByCoords(lat, lon) {
     } catch (error) {
         console.error('Error fetching forecast:', error);
     }
+}
+
+// Show demo weather data immediately for better UX
+function showDemoWeatherData() {
+    console.log('🎭 Loading demo weather data...');
+    
+    // Show weather dashboard
+    const dashboard = document.getElementById('weatherDashboard');
+    if (dashboard) {
+        dashboard.classList.remove('hidden');
+    }
+
+    // Demo weather data
+    const demoData = {
+        name: 'Demo City',
+        sys: { country: 'IN' },
+        main: {
+            temp: 25,
+            feels_like: 28,
+            temp_min: 18,
+            temp_max: 32,
+            humidity: 65,
+            pressure: 1013
+        },
+        weather: [{
+            main: 'Clear',
+            description: 'Clear sky',
+            icon: '01d'
+        }],
+        wind: {
+            speed: 5.2,
+            deg: 120
+        },
+        visibility: 10000
+    };
+
+    // Update all weather display elements
+    updateWeatherDisplay(demoData);
+    
+    // Show notification
+    showNotification('🎭 Demo weather data loaded. Search for a city to get real data!', 'info');
 }
 
 function updateWeatherDisplay(data) {
@@ -1719,46 +1821,62 @@ function initializeChart() {
 }
 
 function updateChart(type) {
+    console.log(`🔄 Updating chart: ${type}`);
+    
     // Update chart based on selected type
+    const ctx = document.getElementById('weatherChart');
+    if (!ctx) {
+        console.error('❌ Chart canvas not found');
+        return;
+    }
+    
+    // Destroy existing chart if it exists
     if (temperatureChart) {
-        // Destroy and recreate chart to avoid conflicts
         temperatureChart.destroy();
-        
-        const ctx = document.getElementById('weatherChart');
-        if (!ctx) return;
-        
-        // Responsive sizing
-        const isMobile = window.innerWidth <= 640;
-        const isTablet = window.innerWidth <= 1024;
-        
-        const fontSize = isMobile ? 10 : isTablet ? 12 : 14;
-        const pointRadius = isMobile ? 2 : 3;
-        const borderWidth = isMobile ? 1 : 2;
-        
-        // Mock data for demonstration
-        const labels = isMobile ? 
-            ['00', '06', '12', '18'] : 
-            ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'];
-        let data, label, color;
-        
-        switch (type) {
-            case 'temperature':
-                data = isMobile ? [18, 20, 28, 20] : [18, 16, 15, 20, 25, 28, 24, 20];
-                label = 'Temperature (°C)';
-                color = 'rgb(59, 130, 246)';
-                break;
-            case 'humidity':
-                data = isMobile ? [65, 60, 40, 60] : [65, 70, 75, 60, 45, 40, 50, 60];
-                label = 'Humidity (%)';
-                color = 'rgb(34, 197, 94)';
-                break;
-            case 'wind':
-                data = isMobile ? [5, 8, 15, 8] : [5, 7, 6, 8, 12, 15, 10, 8];
-                label = 'Wind Speed (km/h)';
-                color = 'rgb(168, 85, 247)';
-                break;
-        }
-        
+        temperatureChart = null;
+    }
+    
+    // Clear canvas to prevent overlay issues
+    const context = ctx.getContext('2d');
+    context.clearRect(0, 0, ctx.width, ctx.height);
+    
+    // Responsive sizing
+    const isMobile = window.innerWidth <= 640;
+    const isTablet = window.innerWidth <= 1024;
+    
+    const fontSize = isMobile ? 10 : isTablet ? 12 : 14;
+    const pointRadius = isMobile ? 2 : 3;
+    const borderWidth = isMobile ? 1 : 2;
+    
+    // Mock data for demonstration
+    const labels = isMobile ? 
+        ['00', '06', '12', '18'] : 
+        ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'];
+    let data, label, color;
+    
+    switch (type) {
+        case 'temperature':
+            data = isMobile ? [18, 20, 28, 20] : [18, 16, 15, 20, 25, 28, 24, 20];
+            label = 'Temperature (°C)';
+            color = 'rgb(59, 130, 246)';
+            break;
+        case 'humidity':
+            data = isMobile ? [65, 60, 40, 60] : [65, 70, 75, 60, 45, 40, 50, 60];
+            label = 'Humidity (%)';
+            color = 'rgb(34, 197, 94)';
+            break;
+        case 'wind':
+            data = isMobile ? [5, 8, 15, 8] : [5, 7, 6, 8, 12, 15, 10, 8];
+            label = 'Wind Speed (km/h)';
+            color = 'rgb(168, 85, 247)';
+            break;
+        default:
+            data = isMobile ? [18, 20, 28, 20] : [18, 16, 15, 20, 25, 28, 24, 20];
+            label = 'Temperature (°C)';
+            color = 'rgb(59, 130, 246)';
+    }
+    
+    try {
         temperatureChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -1844,6 +1962,8 @@ function updateChart(type) {
             }
         });
         
+        console.log(`✅ Chart updated successfully: ${type}`);
+        
         // Add resize handler for chart responsiveness
         const resizeObserver = new ResizeObserver(entries => {
             if (temperatureChart) {
@@ -1852,6 +1972,10 @@ function updateChart(type) {
         });
         
         resizeObserver.observe(ctx.parentElement);
+        
+    } catch (error) {
+        console.error('❌ Error creating chart:', error);
+        showNotification('⚠️ Chart loading failed. Please refresh the page.', 'error');
     }
 }
 
@@ -2126,17 +2250,4 @@ function initializeResponsiveApp() {
     });
 }
 
-// Initialize responsive app when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeResponsiveApp();
-    
-    // Initialize main app functionality
-    loadUserPreferences();
-    updateChart('temperature');
-    updateForecast('daily');
-    
-    // Add touch feedback to all interactive elements
-    addTouchFeedback();
-    
-    console.log('✅ Weather app initialized with full responsiveness');
-});
+// App fully initialized - all features ready!
