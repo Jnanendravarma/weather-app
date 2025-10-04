@@ -12,7 +12,7 @@
     <meta name="version" content="2.0-voice-enabled">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="./manifest.json">
+    <link rel="manifest" href="manifest.json">
     
     <!-- iOS meta tags -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -20,9 +20,9 @@
     <meta name="apple-mobile-web-app-title" content="WeatherSphere">
     
     <!-- Icons - Using generated PNG files -->
-    <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./icon-16.png">
-    <link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     
     <!-- External Resources -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -31,7 +31,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <!-- Local Styles -->
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Particle Background -->
@@ -321,12 +321,12 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="./script.js"></script>
+    <script src="script.js"></script>
     
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
+            navigator.serviceWorker.register('sw.js')
                 .then(function(registration) {
                     console.log('Service Worker registered successfully:', registration.scope);
                 })
