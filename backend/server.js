@@ -11,7 +11,13 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://[::1]:3000'],
+  origin: [
+    'http://localhost:3000', 
+    'http://127.0.0.1:3000', 
+    'http://[::1]:3000',
+    'https://weather-app-jnanendravarma.vercel.app',
+    'https://*.vercel.app'
+  ],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Accept'],
   credentials: false
@@ -125,12 +131,17 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🌦️  WeatherSphere Backend Server`);
-  console.log(`=====================================`);
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`🌐 API available at: http://localhost:${PORT}/api`);
-  console.log(`🔑 API Key configured: ${process.env.OWM_API_KEY ? '✅ Yes' : '❌ No'}`);
-  console.log(`=====================================`);
-});
+// Start server (only for local development)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🌦️  WeatherSphere Backend Server`);
+    console.log(`=====================================`);
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`🌐 API available at: http://localhost:${PORT}/api`);
+    console.log(`🔑 API Key configured: ${process.env.OWM_API_KEY ? '✅ Yes' : '❌ No'}`);
+    console.log(`=====================================`);
+  });
+}
+
+// Export for Vercel
+export default app;
