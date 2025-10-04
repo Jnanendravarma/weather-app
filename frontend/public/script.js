@@ -1,11 +1,11 @@
 // Weather App Configuration
-// Update this with your actual deployed backend URL
-const API_BASE = 'https://weather-app-backend-ten-mauve.vercel.app/api'; // Your deployed backend URL
+// Using local backend server for development
+const API_BASE = 'http://localhost:5000/api'; // Local backend URL
 
 // Helper function to check if server is ready
 async function checkServerStatus() {
     try {
-        const response = await fetch(API_BASE.replace('/api', '') + '/');
+        const response = await fetch('http://localhost:5000/');
         return response.ok;
     } catch (error) {
         console.warn('⚠️ Backend server not reachable, using fallback...');
