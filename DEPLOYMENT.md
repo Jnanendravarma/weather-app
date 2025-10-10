@@ -32,7 +32,7 @@ vercel
 
 # Set environment variable
 vercel env add OWM_API_KEY
-# Enter your API key: a65ee8d9584f92dd4bd6503943ddb49b
+# Enter your API key: your_actual_api_key_here
 ```
 
 **Vercel Configuration:** Create `vercel.json`:
@@ -72,7 +72,7 @@ npm install -g netlify-cli
 netlify deploy
 
 # Set environment variable
-netlify env:set OWM_API_KEY a65ee8d9584f92dd4bd6503943ddb49b
+netlify env:set OWM_API_KEY your_actual_api_key_here
 ```
 
 ### 3. **Railway Deployment**
@@ -87,7 +87,7 @@ railway init
 railway up
 
 # Set environment variable
-railway variables set OWM_API_KEY=a65ee8d9584f92dd4bd6503943ddb49b
+railway variables set OWM_API_KEY=your_actual_api_key_here
 ```
 
 ### 4. **Heroku Deployment**
@@ -95,7 +95,7 @@ railway variables set OWM_API_KEY=a65ee8d9584f92dd4bd6503943ddb49b
 ```bash
 # Install Heroku CLI, then:
 heroku create your-weather-app
-heroku config:set OWM_API_KEY=a65ee8d9584f92dd4bd6503943ddb49b
+heroku config:set OWM_API_KEY=your_actual_api_key_here
 git push heroku main
 ```
 
@@ -153,7 +153,7 @@ app.use(cors({
 ## 🔧 **Environment Variables for Production**
 
 ```bash
-OWM_API_KEY=a65ee8d9584f92dd4bd6503943ddb49b
+OWM_API_KEY=your_actual_api_key_here
 NODE_ENV=production
 PORT=3000
 ```
