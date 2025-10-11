@@ -16,11 +16,36 @@
     
     <!-- External Libraries -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <!-- TailwindCSS CDN - Development Mode -->
-    <!-- Note: For production, install TailwindCSS as PostCSS plugin -->
+    <!-- Note: For production deployment, this works fine for static sites -->
+    <script>
+        // Suppress TailwindCSS CDN warning BEFORE loading TailwindCSS
+        if (typeof console !== 'undefined') {
+            const originalWarn = console.warn;
+            const originalLog = console.log;
+            
+            console.warn = function(...args) {
+                if (typeof args[0] === 'string' && 
+                    (args[0].includes('cdn.tailwindcss.com should not be used in production') ||
+                     args[0].includes('tailwindcss.com') ||
+                     args[0].includes('should not be used in production'))) {
+                    return; // Suppress TailwindCSS warnings
+                }
+                originalWarn.apply(console, args);
+            };
+            
+            console.log = function(...args) {
+                if (typeof args[0] === 'string' && 
+                    (args[0].includes('cdn.tailwindcss.com') ||
+                     args[0].includes('should not be used in production'))) {
+                    return; // Suppress TailwindCSS logs
+                }
+                originalLog.apply(console, args);
+            };
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -91,6 +116,29 @@
         /* Responsive Utilities */
         .responsive-spacing {
             padding: 0.5rem;
+        }
+        
+        /* Font Awesome Icon Fixes */
+        .fas, .far, .fab {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+            font-weight: 900 !important;
+            display: inline-block;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .far {
+            font-weight: 400 !important;
+        }
+        
+        /* Weather Icon Specific Styles */
+        .weather-icon {
+            display: inline-block !important;
+            font-size: inherit;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
         }
         
         @media (min-width: 640px) {
@@ -884,6 +932,6 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="script_pro.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

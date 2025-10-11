@@ -644,7 +644,7 @@ function updateWeatherDisplay(data) {
     
     if (weatherIconLarge && weatherStatus && weatherDescription) {
         const iconClass = getWeatherIcon(data.weather[0].icon);
-        weatherIconLarge.innerHTML = `<i class="${iconClass} text-white text-4xl"></i>`;
+        weatherIconLarge.innerHTML = `<i class="${iconClass} weather-icon text-white text-4xl"></i>`;
         weatherStatus.textContent = data.weather[0].main;
         weatherDescription.textContent = data.weather[0].description;
         
@@ -708,24 +708,24 @@ function updateWeatherDisplay(data) {
 
 function getWeatherIcon(iconCode) {
     const iconMap = {
-        '01d': 'fas fa-sun',
-        '01n': 'fas fa-moon',
-        '02d': 'fas fa-cloud-sun',
-        '02n': 'fas fa-cloud-moon',
-        '03d': 'fas fa-cloud',
-        '03n': 'fas fa-cloud',
-        '04d': 'fas fa-clouds',
-        '04n': 'fas fa-clouds',
-        '09d': 'fas fa-cloud-rain',
-        '09n': 'fas fa-cloud-rain',
-        '10d': 'fas fa-cloud-sun-rain',
-        '10n': 'fas fa-cloud-moon-rain',
-        '11d': 'fas fa-bolt',
-        '11n': 'fas fa-bolt',
-        '13d': 'fas fa-snowflake',
-        '13n': 'fas fa-snowflake',
-        '50d': 'fas fa-smog',
-        '50n': 'fas fa-smog'
+        '01d': 'fas fa-sun',           // Clear sky day
+        '01n': 'fas fa-moon',          // Clear sky night
+        '02d': 'fas fa-cloud-sun',     // Few clouds day
+        '02n': 'fas fa-cloud-moon',    // Few clouds night
+        '03d': 'fas fa-cloud',         // Scattered clouds day
+        '03n': 'fas fa-cloud',         // Scattered clouds night
+        '04d': 'fas fa-cloud',         // Broken clouds day
+        '04n': 'fas fa-cloud',         // Broken clouds night
+        '09d': 'fas fa-cloud-rain',    // Shower rain day
+        '09n': 'fas fa-cloud-rain',    // Shower rain night
+        '10d': 'fas fa-cloud-rain',    // Rain day (simplified)
+        '10n': 'fas fa-cloud-rain',    // Rain night
+        '11d': 'fas fa-bolt',          // Thunderstorm day
+        '11n': 'fas fa-bolt',          // Thunderstorm night
+        '13d': 'fas fa-snowflake',     // Snow day
+        '13n': 'fas fa-snowflake',     // Snow night
+        '50d': 'fas fa-eye-slash',     // Mist day (alternative icon)
+        '50n': 'fas fa-eye-slash'      // Mist night (alternative icon)
     };
     return iconMap[iconCode] || 'fas fa-cloud';
 }
@@ -2007,7 +2007,7 @@ function updateForecast(type) {
         container.innerHTML = displayForecast.map(item => `
             <div class="glass rounded-lg md:rounded-xl p-3 md:p-4 text-center hover:scale-105 transition-all touch-target">
                 <p class="text-blue-200 text-xs md:text-sm mb-1 md:mb-2 font-medium">${isMobile ? item.day.substring(0, 3) : item.day}</p>
-                <i class="${item.icon} text-lg md:text-2xl text-white mb-1 md:mb-2"></i>
+                <i class="${item.icon} weather-icon text-lg md:text-2xl text-white mb-1 md:mb-2"></i>
                 <p class="text-white font-bold text-sm md:text-base">${item.high}°</p>
                 <p class="text-blue-300 text-xs md:text-sm">${item.low}°</p>
                 ${!isMobile ? `<p class="text-blue-200 text-xs mt-1">${item.desc}</p>` : ''}
@@ -2031,7 +2031,7 @@ function updateForecast(type) {
         container.innerHTML = displayForecast.map(item => `
             <div class="glass rounded-lg md:rounded-xl p-3 md:p-4 text-center hover:scale-105 transition-all touch-target">
                 <p class="text-blue-200 text-xs md:text-sm mb-1 md:mb-2 font-medium">${item.time}</p>
-                <i class="${item.icon} text-lg md:text-xl text-white mb-1 md:mb-2"></i>
+                <i class="${item.icon} weather-icon text-lg md:text-xl text-white mb-1 md:mb-2"></i>
                 <p class="text-white font-bold text-sm md:text-base">${item.temp}°</p>
             </div>
         `).join('');

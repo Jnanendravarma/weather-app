@@ -34,10 +34,13 @@ app.use((req, res, next) => {
 // API Routes
 app.get("/api/weather", async (req, res) => {
   const city = req.query.q;
+  const lat = req.query.lat;
+  const lon = req.query.lon;
+  const units = req.query.units || 'metric';
   const apiKey = process.env.OWM_API_KEY;
 
-  if (!city) {
-    return res.status(400).json({ error: "City parameter is required" });
+  if (!city && (!lat || !lon)) {
+    return res.status(400).json({ error: "Either city parameter (q) or coordinates (lat, lon) are required" });
   }
 
   if (!apiKey) {
@@ -45,9 +48,14 @@ app.get("/api/weather", async (req, res) => {
   }
 
   try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
-    );
+    let apiUrl;
+    if (city) {
+      apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${units}`;
+    } else {
+      apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${units}`;
+    }
+    
+    const response = await fetch(apiUrl);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -67,16 +75,24 @@ app.get("/api/weather", async (req, res) => {
 // Forecast endpoint
 app.get("/api/forecast", async (req, res) => {
   const city = req.query.q;
+  const lat = req.query.lat;
+  const lon = req.query.lon;
+  const units = req.query.units || 'metric';
   const apiKey = process.env.OWM_API_KEY;
 
-  if (!city) {
-    return res.status(400).json({ error: "City parameter is required" });
+  if (!city && (!lat || !lon)) {
+    return res.status(400).json({ error: "Either city parameter (q) or coordinates (lat, lon) are required" });
   }
 
   try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
-    );
+    let apiUrl;
+    if (city) {
+      apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=${units}`;
+    } else {
+      apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${units}`;
+    }
+    
+    const response = await fetch(apiUrl);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
