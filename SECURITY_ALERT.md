@@ -6,7 +6,7 @@ IMMEDIATE ACTION REQUIRED:
 
 1. **Regenerate Your API Key:**
    - Go to: https://openweathermap.org/api_keys
-   - Delete the old key: a65ee8d9584f92dd4bd6503943ddb49b
+   - Delete the old key: [REMOVED_FOR_SECURITY]
    - Generate a new API key
 
 2. **Update Your Local .env File:**
