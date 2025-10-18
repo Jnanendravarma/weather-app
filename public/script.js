@@ -742,21 +742,60 @@ class WeatherApp {
         });
 
         // Theme button and dropdown
-        document.getElementById('themeBtn').addEventListener('click', (e) => {
+        const themeBtn = document.getElementById('themeBtn');
+        const themeDropdown = document.getElementById('themeDropdown');
+        
+        if (!themeBtn) {
+            console.error('Theme button not found!');
+            return;
+        }
+        if (!themeDropdown) {
+            console.error('Theme dropdown not found!');
+            return;
+        }
+        
+        console.log('Theme button and dropdown found successfully');
+        
+        themeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const dropdown = document.getElementById('themeDropdown');
-            dropdown.classList.toggle('hidden');
+            console.log('Theme button clicked!');
+            console.log('Dropdown current classes:', themeDropdown.classList.toString());
+            
+            themeDropdown.classList.toggle('hidden');
+            
+            console.log('Dropdown classes after toggle:', themeDropdown.classList.toString());
+            
+            // Add visual feedback
+            if (!themeDropdown.classList.contains('hidden')) {
+                console.log('Theme dropdown is now visible');
+                utils.showNotification('Select a theme', 'info', 1000);
+            } else {
+                console.log('Theme dropdown is now hidden');
+            }
         });
 
         // Theme selection
-        document.querySelectorAll('.theme-option').forEach(button => {
+        const themeOptions = document.querySelectorAll('.theme-option');
+        console.log(`Found ${themeOptions.length} theme option buttons`);
+        
+        themeOptions.forEach((button, index) => {
+            const theme = button.dataset.theme;
+            console.log(`Theme button ${index}: ${theme}`);
+            
             button.addEventListener('click', () => {
-                const theme = button.dataset.theme;
+                console.log(`Theme option clicked: ${theme}`);
                 themeManager.setTheme(theme);
-                document.getElementById('themeDropdown').classList.add('hidden');
+                
+                const dropdown = document.getElementById('themeDropdown');
+                if (dropdown) {
+                    dropdown.classList.add('hidden');
+                }
                 
                 // Disable auto theme when user manually selects
-                document.getElementById('autoThemeToggle').checked = false;
+                const autoToggle = document.getElementById('autoThemeToggle');
+                if (autoToggle) {
+                    autoToggle.checked = false;
+                }
             });
         });
 
@@ -1452,6 +1491,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.testVoice = (command) => {
         console.log(`Testing voice command: ${command}`);
         voiceAssistant.processVoiceCommand(command);
+    };
+    
+    // Add theme dropdown testing function
+    window.showThemeDropdown = () => {
+        const dropdown = document.getElementById('themeDropdown');
+        if (dropdown) {
+            dropdown.classList.remove('hidden');
+            console.log('Theme dropdown manually shown');
+        } else {
+            console.error('Theme dropdown not found');
+        }
+    };
+    
+    window.hideThemeDropdown = () => {
+        const dropdown = document.getElementById('themeDropdown');
+        if (dropdown) {
+            dropdown.classList.add('hidden');
+            console.log('Theme dropdown manually hidden');
+        }
     };
     
     // Log available themes for debugging
