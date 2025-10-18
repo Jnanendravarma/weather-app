@@ -154,7 +154,7 @@ NODE_ENV=developmentnpm run deploy:vercel
 
 ## 🌐 **Example API Calls**```bash
 
-heroku create your-weather-app
+heroku create your-weatherapp
 
 ### **Current Weather**heroku config:set OWM_API_KEY=your_api_key_here
 

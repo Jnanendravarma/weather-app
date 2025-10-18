@@ -3,7 +3,7 @@
 ## 🏗️ Project Structure
 
 ```
-weather-app/
+weatherapp/
 │
 ├── backend/                 # Express.js API Server
 │   ├── server.js           # Main backend server (ES modules)
