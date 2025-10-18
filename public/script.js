@@ -223,11 +223,13 @@ class VoiceAssistant {
             this.recognition.continuous = false;
             this.recognition.interimResults = false;
             this.recognition.lang = 'en-US';
+            this.recognition.maxAlternatives = 5; // Get multiple alternatives
 
             this.recognition.onstart = () => {
                 appState.isListening = true;
                 this.showVoiceStatus(true);
                 console.log('Voice recognition started');
+                utils.showNotification('Listening... Speak now!', 'info', 2000);
             };
 
             this.recognition.onend = () => {
@@ -237,16 +239,55 @@ class VoiceAssistant {
             };
 
             this.recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript.toLowerCase().trim();
-                console.log('Voice command:', transcript);
-                this.processVoiceCommand(transcript);
+                console.log('Speech recognition results:', event.results);
+                
+                // Try all alternatives
+                const results = Array.from(event.results[0]);
+                console.log('All speech alternatives:', results.map(r => r.transcript));
+                
+                let processed = false;
+                for (const result of results) {
+                    const transcript = result.transcript.toLowerCase().trim();
+                    console.log(`Trying transcript: "${transcript}" (confidence: ${result.confidence})`);
+                    
+                    if (transcript.length > 0) {
+                        this.processVoiceCommand(transcript);
+                        processed = true;
+                        break;
+                    }
+                }
+                
+                if (!processed) {
+                    this.speak('Sorry, I couldn\'t understand what you said. Please try again.');
+                }
             };
 
             this.recognition.onerror = (event) => {
                 console.error('Voice recognition error:', event.error);
-                utils.showNotification('Voice recognition error. Please try again.', 'error');
+                let errorMessage = 'Voice recognition error. ';
+                
+                switch(event.error) {
+                    case 'no-speech':
+                        errorMessage += 'No speech detected. Please try again.';
+                        break;
+                    case 'audio-capture':
+                        errorMessage += 'Microphone not accessible.';
+                        break;
+                    case 'not-allowed':
+                        errorMessage += 'Microphone permission denied.';
+                        break;
+                    case 'network':
+                        errorMessage += 'Network error occurred.';
+                        break;
+                    default:
+                        errorMessage += 'Please try again.';
+                }
+                
+                utils.showNotification(errorMessage, 'error');
                 this.showVoiceStatus(false);
             };
+        } else {
+            console.warn('Speech recognition not supported in this browser');
         }
     }
 
@@ -284,6 +325,8 @@ class VoiceAssistant {
     }
 
     processVoiceCommand(command) {
+        console.log('Processing voice command:', command);
+        
         const commands = {
             'weather': () => {
                 const city = this.extractCityFromCommand(command);
@@ -298,6 +341,14 @@ class VoiceAssistant {
                 weatherApp.getCurrentLocation();
                 this.speak('Getting your current location weather');
             },
+            'current location': () => {
+                weatherApp.getCurrentLocation();
+                this.speak('Getting your current location weather');
+            },
+            'my location': () => {
+                weatherApp.getCurrentLocation();
+                this.speak('Getting your current location weather');
+            },
             'forecast': () => {
                 this.speak('Showing 5-day forecast');
                 // Forecast is already shown, just announce it
@@ -307,14 +358,59 @@ class VoiceAssistant {
                 if (theme) {
                     themeManager.setTheme(theme);
                     // Disable auto theme when user manually selects via voice
-                    document.getElementById('autoThemeToggle').checked = false;
+                    const autoToggle = document.getElementById('autoThemeToggle');
+                    if (autoToggle) autoToggle.checked = false;
                     this.speak(`Switched to ${theme} theme`);
                 } else {
-                    this.speak('Please specify a theme name like cosmic, ocean, or sunset');
+                    // Cycle through themes if no specific theme mentioned
+                    const nextTheme = themeManager.getNextTheme();
+                    themeManager.setTheme(nextTheme);
+                    this.speak(`Switched to ${nextTheme} theme`);
                 }
             },
+            'change theme': () => {
+                const nextTheme = themeManager.getNextTheme();
+                themeManager.setTheme(nextTheme);
+                this.speak(`Switched to ${nextTheme} theme`);
+            },
+            'dark theme': () => {
+                themeManager.setTheme('night');
+                this.speak('Switched to dark night theme');
+            },
+            'cosmic': () => {
+                themeManager.setTheme('cosmic');
+                this.speak('Switched to cosmic theme');
+            },
+            'ocean': () => {
+                themeManager.setTheme('ocean');
+                this.speak('Switched to ocean theme');
+            },
+            'sunset': () => {
+                themeManager.setTheme('sunset');
+                this.speak('Switched to sunset theme');
+            },
+            'forest': () => {
+                themeManager.setTheme('forest');
+                this.speak('Switched to forest theme');
+            },
+            'night': () => {
+                themeManager.setTheme('night');
+                this.speak('Switched to night theme');
+            },
+            'aurora': () => {
+                themeManager.setTheme('aurora');
+                this.speak('Switched to aurora theme');
+            },
+            'volcano': () => {
+                themeManager.setTheme('volcano');
+                this.speak('Switched to volcano theme');
+            },
+            'cyber': () => {
+                themeManager.setTheme('cyber');
+                this.speak('Switched to cyber theme');
+            },
             'help': () => {
-                this.speak('You can say: weather for city name, get my location, show forecast, change theme, or help for commands');
+                this.speak('You can say: weather for city name, get my location, show forecast, change theme, or help for commands. You can also say specific theme names like cosmic, ocean, sunset, forest, night, aurora, volcano, or cyber.');
             }
         };
 
@@ -326,15 +422,29 @@ class VoiceAssistant {
             }
         }
 
-        // If no command matches, try searching for city
-        const cityMatch = command.match(/weather (?:for |in )?(.+)/);
-        if (cityMatch) {
-            const city = cityMatch[1].trim();
-            weatherApp.searchWeather(city);
-            this.speak(`Searching weather for ${city}`);
-        } else {
-            this.speak('Sorry, I didn\'t understand that command. Say help for available commands.');
+        // Try to extract city name from various patterns
+        const cityPatterns = [
+            /weather (?:for |in )?(.+)/,
+            /(.+) weather/,
+            /search (?:for )?(.+)/,
+            /show weather (?:for |in )?(.+)/,
+            /get weather (?:for |in )?(.+)/,
+            /what's the weather (?:for |in )?(.+)/,
+            /how's the weather (?:for |in )?(.+)/
+        ];
+
+        for (const pattern of cityPatterns) {
+            const match = command.match(pattern);
+            if (match) {
+                const city = match[1].trim().replace(/^(for|in)\s+/, '');
+                weatherApp.searchWeather(city);
+                this.speak(`Searching weather for ${city}`);
+                return;
+            }
         }
+
+        // If nothing matches, provide helpful response
+        this.speak('I understand commands like: weather for London, change theme, get my location, or help for more options.');
     }
 
     extractCityFromCommand(command) {
@@ -394,7 +504,12 @@ class ThemeManager {
     }
 
     setTheme(themeName) {
-        if (!this.themes.includes(themeName)) return;
+        if (!this.themes.includes(themeName)) {
+            console.warn(`Theme "${themeName}" not found. Available themes:`, this.themes);
+            return;
+        }
+
+        console.log(`Changing theme to: ${themeName}`);
 
         // Remove all theme classes
         document.body.classList.remove(...this.themes.map(t => `theme-${t}`));
@@ -405,7 +520,16 @@ class ThemeManager {
         this.currentTheme = themeName;
         appState.updateSetting('theme', themeName);
         
+        // Update theme button indicators
+        document.querySelectorAll('.theme-option').forEach(btn => {
+            btn.classList.remove('ring-2', 'ring-white');
+            if (btn.dataset.theme === themeName) {
+                btn.classList.add('ring-2', 'ring-white');
+            }
+        });
+        
         utils.showNotification(`Theme changed to ${themeName}`, 'success');
+        console.log(`Theme successfully set to: ${themeName}. Body classes:`, document.body.classList.toString());
     }
 
     getNextTheme() {
@@ -1317,6 +1441,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Make weatherApp globally accessible for voice commands
     window.weatherApp = weatherApp;
+    
+    // Add theme testing function for debugging
+    window.testTheme = (themeName) => {
+        console.log(`Testing theme: ${themeName}`);
+        themeManager.setTheme(themeName);
+    };
+    
+    // Add voice testing function
+    window.testVoice = (command) => {
+        console.log(`Testing voice command: ${command}`);
+        voiceAssistant.processVoiceCommand(command);
+    };
+    
+    // Log available themes for debugging
+    console.log('Available themes:', themeManager.themes);
+    console.log('Current theme:', themeManager.currentTheme);
+    console.log('Body classes:', document.body.classList.toString());
     
     // Add some interactive elements
     const charts = document.getElementById('chartsSection');
