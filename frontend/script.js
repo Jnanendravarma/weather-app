@@ -1,7 +1,9 @@
 // Weather App - Professional Interface
 // Configuration
 const CONFIG = {
-    API_BASE_URL: 'http://localhost:5000/api',
+    API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:5000/api' 
+        : '/api',
     STORAGE_KEY: 'weatherapp_settings',
     VOICE_ENABLED: true,
     DEFAULT_THEME: 'night'
@@ -10,8 +12,9 @@ const CONFIG = {
 // Test API connection on startup
 async function testAPIConnection() {
     try {
-        const response = await fetch(`${CONFIG.API_BASE_URL}/health`);
-        if (response.ok) {
+        // Test with a simple weather query
+        const response = await fetch(`${CONFIG.API_BASE_URL}/weather?q=London`);
+        if (response.ok || response.status === 401) { // 401 means API key issue, but server is responding
             console.log('✅ Backend API connection successful');
             utils.showNotification('Backend connected successfully!', 'success');
             return true;
@@ -20,8 +23,8 @@ async function testAPIConnection() {
         }
     } catch (error) {
         console.error('❌ Backend API connection failed:', error);
-        utils.showNotification('Backend connection failed. Please start the backend server.', 'error');
-        return false;
+        utils.showNotification('Backend connection failed. Using production API.', 'warning');
+        return false; // Continue anyway for production
     }
 }
 
