@@ -15,6 +15,9 @@ app.use(cors({
     'http://localhost:3000', 
     'http://127.0.0.1:3000', 
     'http://[::1]:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+    'http://[::1]:8080',
     'https://weather-app-jnanendravarma.vercel.app',
     'https://*.vercel.app'
   ],
@@ -33,14 +36,14 @@ app.use((req, res, next) => {
 
 // API Routes
 app.get("/api/weather", async (req, res) => {
-  const city = req.query.q;
+  const city = req.query.q || req.query.city;
   const lat = req.query.lat;
   const lon = req.query.lon;
   const units = req.query.units || 'metric';
   const apiKey = process.env.OWM_API_KEY;
 
   if (!city && (!lat || !lon)) {
-    return res.status(400).json({ error: "Either city parameter (q) or coordinates (lat, lon) are required" });
+    return res.status(400).json({ error: "Either city parameter (q or city) or coordinates (lat, lon) are required" });
   }
 
   if (!apiKey) {
@@ -74,14 +77,14 @@ app.get("/api/weather", async (req, res) => {
 
 // Forecast endpoint
 app.get("/api/forecast", async (req, res) => {
-  const city = req.query.q;
+  const city = req.query.q || req.query.city;
   const lat = req.query.lat;
   const lon = req.query.lon;
   const units = req.query.units || 'metric';
   const apiKey = process.env.OWM_API_KEY;
 
   if (!city && (!lat || !lon)) {
-    return res.status(400).json({ error: "Either city parameter (q) or coordinates (lat, lon) are required" });
+    return res.status(400).json({ error: "Either city parameter (q or city) or coordinates (lat, lon) are required" });
   }
 
   try {

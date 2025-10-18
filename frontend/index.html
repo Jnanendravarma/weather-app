@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherSphere - Professional Weather App</title>
+    <meta name="description" content="Professional real-time weather application with AI voice assistant, stunning animations, and smart insights">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiMzYjgyZjYiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xOCAxMGgtMS4yNkE4IDggMCAxIDAgOSAyMGg5YTUgNSAwIDAgMCAwLTEweiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMzIiIGZpbGw9IiMzYjgyZjYiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xOCAxMGgtMS4yNkE4IDggMCAxIDAgOSAyMGg5YTUgNSAwIDAgMCAwLTEweiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=">
+    
+    <!-- External Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- TailwindCSS CDN -->
+    <script>
+        // Suppress TailwindCSS CDN warning for demo purposes
+        if (typeof console !== 'undefined') {
+            const originalWarn = console.warn;
+            const originalLog = console.log;
+            
+            console.warn = function(...args) {
+                if (typeof args[0] === 'string' && 
+                    (args[0].includes('cdn.tailwindcss.com') ||
+                     args[0].includes('should not be used in production'))) {
+                    return;
+                }
+                originalWarn.apply(console, args);
+            };
+            
+            console.log = function(...args) {
+                if (typeof args[0] === 'string' && 
+                    (args[0].includes('cdn.tailwindcss.com') ||
+                     args[0].includes('should not be used in production'))) {
+                    return;
+                }
+                originalLog.apply(console, args);
+            };
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'bounce-in': 'bounceIn 0.6s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'drift': 'drift 20s infinite linear',
+                        'rainbow': 'rainbow 3s linear infinite',
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes drift {
+            0% { transform: translateX(-100vw) rotate(0deg); }
+            100% { transform: translateX(100vw) rotate(360deg); }
+        }
+        
+        /* No Glow Effects */
+        
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Minimal Glass Morphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 2px 10px 0 rgba(31, 38, 135, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .glass:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 15px 0 rgba(31, 38, 135, 0.15);
+        }
+        
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-subtle {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        /* Dark Background Themes - Better Visibility */
+        .theme-cosmic {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        
+        .theme-ocean {
+            background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);
+        }
+        
+        .theme-sunset {
+            background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%);
+        }
+        
+        .theme-forest {
+            background: linear-gradient(135deg, #14532d 0%, #166534 50%, #15803d 100%);
+        }
+        
+        .theme-night {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        }
+        
+        .theme-aurora {
+            background: linear-gradient(135deg, #581c87 0%, #7c3aed 50%, #8b5cf6 100%);
+        }
+        
+        .theme-volcano {
+            background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #dc2626 100%);
+        }
+        
+        .theme-cyber {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+        }
+        
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.3;
+            animation: drift var(--duration, 20s) infinite linear;
+        }
+        
+        /* Animated Weather Backgrounds - Subtle Effects */
+        .weather-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+            transition: all 1.5s ease-in-out;
+        }
+        
+        /* Sunny Day Animation - Dark but Warm */
+        .sunny-bg {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0c4a6e 100%);
+            animation: sunnyGradient 30s ease-in-out infinite;
+        }
+        
+        @keyframes sunnyGradient {
+            0%, 100% { background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0c4a6e 100%); }
+            50% { background: linear-gradient(135deg, #075985 0%, #0284c7 50%, #075985 100%); }
+        }
+        
+        /* Cloudy Weather Animation - Dark & Visible */
+        .cloudy-bg {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 50%, #374151 100%);
+            animation: cloudyGradient 25s ease-in-out infinite;
+        }
+        
+        @keyframes cloudyGradient {
+            0%, 100% { background: linear-gradient(135deg, #374151 0%, #1f2937 50%, #374151 100%); }
+            50% { background: linear-gradient(135deg, #4b5563 0%, #374151 50%, #4b5563 100%); }
+        }
+        
+        /* Rainy Weather Animation - Dark & Calm */
+        .rainy-bg {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%);
+            animation: rainyGradient 20s ease-in-out infinite;
+        }
+        
+        @keyframes rainyGradient {
+            0%, 100% { background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%); }
+            50% { background: linear-gradient(135deg, #334155 0%, #1e293b 50%, #334155 100%); }
+        }
+        
+        /* Snowy Weather Animation - Dark Winter */
+        .snowy-bg {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 50%, #374151 100%);
+            animation: snowyGradient 35s ease-in-out infinite;
+        }
+        
+        @keyframes snowyGradient {
+            0%, 100% { background: linear-gradient(135deg, #374151 0%, #4b5563 50%, #374151 100%); }
+            50% { background: linear-gradient(135deg, #6b7280 0%, #374151 50%, #6b7280 100%); }
+        }
+        
+        /* Night Weather Animation - Deep Dark */
+        .night-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            animation: nightGradient 40s ease-in-out infinite;
+        }
+        
+        @keyframes nightGradient {
+            0%, 100% { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
+            50% { background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%); }
+        }
+        
+        /* Animated Cloud Elements - Subtle */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            opacity: 0.3;
+            animation: cloudFloat 45s infinite linear;
+        }
+        
+        .cloud:before,
+        .cloud:after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+        }
+        
+        .cloud.cloud1 {
+            width: 120px;
+            height: 50px;
+            top: 15%;
+            animation-duration: 50s;
+            animation-delay: -10s;
+        }
+        
+        .cloud.cloud1:before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 15px;
+        }
+        
+        .cloud.cloud1:after {
+            width: 70px;
+            height: 50px;
+            top: -20px;
+            right: 15px;
+        }
+        
+        .cloud.cloud2 {
+            width: 100px;
+            height: 40px;
+            top: 45%;
+            animation-duration: 40s;
+            animation-delay: -20s;
+        }
+        
+        .cloud.cloud2:before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 20px;
+        }
+        
+        .cloud.cloud2:after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 20px;
+        }
+        
+        .cloud.cloud3 {
+            width: 140px;
+            height: 60px;
+            top: 70%;
+            animation-duration: 55s;
+            animation-delay: -30s;
+        }
+        
+        .cloud.cloud3:before {
+            width: 70px;
+            height: 70px;
+            top: -35px;
+            left: 25px;
+        }
+        
+        .cloud.cloud3:after {
+            width: 80px;
+            height: 60px;
+            top: -25px;
+            right: 25px;
+        }
+        
+        @keyframes cloudFloat {
+            from {
+                left: -200px;
+            }
+            to {
+                left: calc(100% + 200px);
+            }
+        }
+        
+        /* Rain Drops Animation - Gentle */
+        .rain-drop {
+            position: absolute;
+            width: 1px;
+            height: 15px;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: rainFall 2s infinite linear;
+            border-radius: 50px;
+            opacity: 0.6;
+        }
+        
+        @keyframes rainFall {
+            from {
+                top: -20px;
+                opacity: 0.6;
+            }
+            to {
+                top: 100vh;
+                opacity: 0;
+            }
+        }
+        
+        /* Snow Flakes Animation - Soft */
+        .snow-flake {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.5);
+            user-select: none;
+            pointer-events: none;
+            animation: snowFall 15s infinite linear;
+            opacity: 0.7;
+        }
+        
+        @keyframes snowFall {
+            from {
+                top: -100px;
+                transform: translateX(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+            to {
+                top: 100vh;
+                transform: translateX(50px) rotate(180deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Stars Animation for Night - Subtle */
+        .star {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: starTwinkle 4s infinite ease-in-out;
+        }
+        
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.05); }
+        }
+        
+        /* Sun Animation - Simple */
+        .sun {
+            position: absolute;
+            top: 15%;
+            right: 15%;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(255, 193, 7, 0.6) 0%, rgba(255, 152, 0, 0.4) 100%);
+            border-radius: 50%;
+            animation: sunPulse 12s infinite ease-in-out;
+            opacity: 0.6;
+        }
+        
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.02); opacity: 0.7; }
+        }
+        
+        /* Lightning Animation - Subtle */
+        .lightning {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.4);
+            opacity: 0;
+            animation: lightningFlash 8s infinite;
+        }
+        
+        @keyframes lightningFlash {
+            0%, 94%, 96%, 100% { opacity: 0; }
+            95%, 95.5% { opacity: 0.4; }
+        }
+        
+        /* Rainbow Text */
+        .rainbow-text {
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow 3s linear infinite;
+        }
+        
+        /* Enhanced Glass Effect for Weather Background */
+        .weather-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        /* Dynamic Weather Elements - More Subtle */
+        .dynamic-floating {
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        /* Floating Elements - Reduced Opacity */
+        .floating-element {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.15;
+            animation: drift var(--duration, 40s) infinite linear;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Voice Animation */
+        .voice-pulse {
+            animation: voicePulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes voicePulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        /* Responsive Text */
+        .responsive-text {
+            font-size: clamp(1rem, 4vw, 2rem);
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="theme-cosmic min-h-screen overflow-x-hidden font-sans">
+    
+    <!-- Animated Weather Background -->
+    <div id="weatherBackground" class="weather-bg sunny-bg">
+        <!-- Animated Clouds -->
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+        
+        <!-- Sun Element -->
+        <div id="sunElement" class="sun"></div>
+        
+        <!-- Rain Container -->
+        <div id="rainContainer" style="display: none;"></div>
+        
+        <!-- Snow Container -->
+        <div id="snowContainer" style="display: none;"></div>
+        
+        <!-- Stars Container -->
+        <div id="starsContainer" style="display: none;"></div>
+        
+        <!-- Lightning Effect -->
+        <div id="lightningEffect" class="lightning" style="display: none;"></div>
+    </div>
+
+    <!-- Floating Background Elements - Reduced -->
+    <div class="floating-element text-4xl" style="top: 20%; left: 5%; --duration: 45s;">☁️</div>
+    <div class="floating-element text-3xl" style="top: 70%; left: 85%; --duration: 50s;">🌙</div>
+    
+    <!-- Main Container -->
+    <div class="min-h-screen p-4 relative z-10">
+        
+        <!-- Header -->
+        <header class="glass rounded-2xl p-6 mb-6 animate-fade-in">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 glass-strong rounded-full flex items-center justify-center animate-pulse">
+                        <i class="fas fa-cloud-sun text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-white rainbow-text">WeatherSphere</h1>
+                        <p class="text-blue-200 text-sm">Professional Weather Experience</p>
+                    </div>
+                </div>
+                
+                <!-- Settings & Controls -->
+                <div class="flex items-center gap-2">
+                    <!-- Theme Selector -->
+                    <button id="themeBtn" class="glass p-3 rounded-xl hover:bg-white/20 transition-all duration-300">
+                        <i class="fas fa-palette text-white text-lg"></i>
+                    </button>
+                    
+                    <!-- Voice Assistant -->
+                    <button id="voiceBtn" class="glass p-3 rounded-xl hover:bg-white/20 transition-all duration-300">
+                        <i class="fas fa-microphone text-white text-lg"></i>
+                    </button>
+                    
+                    <!-- Settings -->
+                    <button id="settingsBtn" class="glass p-3 rounded-xl hover:bg-white/20 transition-all duration-300">
+                        <i class="fas fa-cog text-white text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Search Section -->
+        <section class="glass rounded-2xl p-6 mb-6 animate-slide-up">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1 relative">
+                    <input 
+                        type="text" 
+                        id="cityInput" 
+                        placeholder="Search for any city or location..."
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                    >
+                    <div id="suggestions" class="absolute top-full left-0 right-0 mt-2 glass rounded-xl max-h-60 overflow-y-auto hidden z-50"></div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="searchBtn" class="glass px-6 py-3 rounded-xl hover:bg-white/20 transition-all duration-300 flex items-center gap-2">
+                        <i class="fas fa-search text-white"></i>
+                        <span class="text-white hidden sm:inline">Search</span>
+                    </button>
+                    <button id="locationBtn" class="glass px-6 py-3 rounded-xl hover:bg-white/20 transition-all duration-300">
+                        <i class="fas fa-location-arrow text-white"></i>
+                    </button>
+                    <button id="voiceSearchBtn" class="glass px-6 py-3 rounded-xl hover:bg-white/20 transition-all duration-300">
+                        <i class="fas fa-microphone text-white"></i>
+                    </button>
+                    <div class="relative">
+                        <button id="themeBtn" class="glass px-6 py-3 rounded-xl hover:bg-white/20 transition-all duration-300">
+                            <i class="fas fa-palette text-white"></i>
+                        </button>
+                        <div id="themeDropdown" class="absolute top-full right-0 mt-2 glass rounded-xl p-4 min-w-48 hidden z-50">
+                            <p class="text-white text-sm font-semibold mb-3">Choose Theme:</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="theme-option px-3 py-2 rounded-lg text-xs text-white hover:bg-white/20 transition-colors" data-theme="cosmic">Cosmic</button>
+                                <button class="theme-option px-3 py-2 rounded-lg text-xs text-white hover:bg-white/20 transition-colors" data-theme="ocean">Ocean</button>
+                                <button class="theme-option px-3 py-2 rounded-lg text-xs text-white hover:bg-white/20 transition-colors" data-theme="sunset">Sunset</button>
+                                <button class="theme-option px-3 py-2 rounded-lg text-xs text-white hover:bg-white/20 transition-colors" data-theme="forest">Forest</button>
+                                <button class="theme-option px-3 py-2 rounded-lg text-xs text-white hover:bg-white/20 transition-colors" data-theme="night">Night</button>
+                                <button class="theme-option px-3 py-2 rounded-lg text-xs text-white hover:bg-white/20 transition-colors" data-theme="aurora">Aurora</button>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-white/20">
+                                <label class="flex items-center gap-2 text-white text-xs">
+                                    <input type="checkbox" id="autoThemeToggle" class="rounded">
+                                    <span>Auto Theme (Weather Based)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Current Weather Card -->
+        <section id="currentWeather" class="glass rounded-2xl p-8 mb-6 animate-bounce-in hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Main Weather Info -->
+                <div class="text-center lg:text-left">
+                    <div class="flex items-center justify-center lg:justify-start gap-4 mb-4">
+                        <div id="weatherIcon" class="text-6xl animate-float">🌤️</div>
+                        <div>
+                            <h2 id="cityName" class="text-3xl font-bold text-white mb-1">Loading...</h2>
+                            <p id="countryName" class="text-blue-200 text-lg">Getting location...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-center lg:justify-start gap-4 mb-4">
+                        <span id="temperature" class="text-7xl font-light text-white">--°</span>
+                        <div class="text-left">
+                            <p id="description" class="text-xl text-blue-200 capitalize mb-1">Loading weather...</p>
+                            <p id="feelsLike" class="text-lg text-blue-300">Feels like --°</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Unit Toggle -->
+                    <div class="flex justify-center lg:justify-start">
+                        <div class="glass-subtle rounded-full p-1">
+                            <button id="celsiusBtn" class="px-4 py-2 rounded-full text-white transition-all duration-300 active">°C</button>
+                            <button id="fahrenheitBtn" class="px-4 py-2 rounded-full text-white transition-all duration-300">°F</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Weather Details Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-subtle rounded-xl p-4 text-center">
+                        <i class="fas fa-eye text-2xl text-blue-300 mb-2"></i>
+                        <p class="text-white text-lg font-semibold" id="visibility">-- km</p>
+                        <p class="text-blue-200 text-sm">Visibility</p>
+                    </div>
+                    <div class="glass-subtle rounded-xl p-4 text-center">
+                        <i class="fas fa-tint text-2xl text-blue-300 mb-2"></i>
+                        <p class="text-white text-lg font-semibold" id="humidity">--%</p>
+                        <p class="text-blue-200 text-sm">Humidity</p>
+                    </div>
+                    <div class="glass-subtle rounded-xl p-4 text-center">
+                        <i class="fas fa-wind text-2xl text-blue-300 mb-2"></i>
+                        <p class="text-white text-lg font-semibold" id="windSpeed">-- km/h</p>
+                        <p class="text-blue-200 text-sm">Wind Speed</p>
+                    </div>
+                    <div class="glass-subtle rounded-xl p-4 text-center">
+                        <i class="fas fa-thermometer-half text-2xl text-blue-300 mb-2"></i>
+                        <p class="text-white text-lg font-semibold" id="pressure">-- hPa</p>
+                        <p class="text-blue-200 text-sm">Pressure</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Charts Section -->
+        <section id="chartsSection" class="glass rounded-2xl p-6 mb-6 hidden">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-chart-line text-blue-300"></i>
+                Weather Analytics
+            </h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-subtle rounded-xl p-4">
+                    <canvas id="temperatureChart" width="400" height="200"></canvas>
+                </div>
+                <div class="glass-subtle rounded-xl p-4">
+                    <canvas id="humidityChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 5-Day Forecast -->
+        <section id="forecastSection" class="glass rounded-2xl p-6 mb-6 hidden">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-calendar-alt text-blue-300"></i>
+                5-Day Forecast
+            </h3>
+            <div id="forecastContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Forecast cards will be inserted here -->
+            </div>
+        </section>
+        
+        <!-- Air Quality Section -->
+        <section id="airQualitySection" class="glass rounded-2xl p-6 mb-6 hidden">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-leaf text-green-300"></i>
+                Air Quality Index
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-subtle rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-white mb-1" id="aqiValue">--</div>
+                    <div class="text-sm text-blue-200 mb-2">AQI</div>
+                    <div class="px-3 py-1 rounded-full text-xs font-medium" id="aqiStatus">Loading...</div>
+                </div>
+                <div class="glass-subtle rounded-xl p-4 text-center">
+                    <div class="text-lg font-semibold text-white" id="coValue">-- μg/m³</div>
+                    <div class="text-sm text-blue-200">CO</div>
+                </div>
+                <div class="glass-subtle rounded-xl p-4 text-center">
+                    <div class="text-lg font-semibold text-white" id="no2Value">-- μg/m³</div>
+                    <div class="text-sm text-blue-200">NO₂</div>
+                </div>
+                <div class="glass-subtle rounded-xl p-4 text-center">
+                    <div class="text-lg font-semibold text-white" id="pm25Value">-- μg/m³</div>
+                    <div class="text-sm text-blue-200">PM2.5</div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Theme Selector Modal -->
+    <div id="themeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="glass rounded-2xl p-6 m-4 max-w-md w-full animate-bounce-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">Choose Theme</h3>
+                <button id="closeTheme" class="text-white hover:text-blue-300 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="cosmic">
+                    <div class="w-full h-8 rounded mb-2 theme-cosmic"></div>
+                    <span class="text-sm">Cosmic</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="ocean">
+                    <div class="w-full h-8 rounded mb-2 theme-ocean"></div>
+                    <span class="text-sm">Ocean</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="sunset">
+                    <div class="w-full h-8 rounded mb-2 theme-sunset"></div>
+                    <span class="text-sm">Sunset</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="forest">
+                    <div class="w-full h-8 rounded mb-2 theme-forest"></div>
+                    <span class="text-sm">Forest</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="night">
+                    <div class="w-full h-8 rounded mb-2 theme-night"></div>
+                    <span class="text-sm">Night</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="aurora">
+                    <div class="w-full h-8 rounded mb-2 theme-aurora"></div>
+                    <span class="text-sm">Aurora</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="volcano">
+                    <div class="w-full h-8 rounded mb-2 theme-volcano"></div>
+                    <span class="text-sm">Volcano</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="cyber">
+                    <div class="w-full h-8 rounded mb-2 theme-cyber"></div>
+                    <span class="text-sm">Cyber</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="glass rounded-2xl p-6 m-4 max-w-md w-full animate-bounce-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Settings</h3>
+                <button id="closeSettings" class="text-white hover:text-blue-300 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Voice Settings -->
+            <div class="space-y-4">
+                <div class="glass-subtle rounded-xl p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-white font-medium">Voice Assistant</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="voiceToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-sm text-blue-200 block mb-1">Voice Speed</label>
+                            <input type="range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1" class="w-full">
+                        </div>
+                        <div>
+                            <label class="text-sm text-blue-200 block mb-1">Voice Pitch</label>
+                            <input type="range" id="voicePitch" min="0" max="2" step="0.1" value="1" class="w-full">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-subtle rounded-xl p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-white font-medium">Voice Announcements</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="announcementToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <p class="text-sm text-blue-300">Automatically announce weather updates</p>
+                </div>
+                
+                <div class="glass-subtle rounded-xl p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-white font-medium">Smart Suggestions</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="suggestionsToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <p class="text-sm text-blue-300">Show location suggestions while typing</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Voice Status Indicator -->
+    <div id="voiceStatus" class="fixed bottom-4 right-4 glass rounded-full p-4 hidden animate-bounce-in">
+        <div class="flex items-center gap-2">
+            <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+            <span class="text-white text-sm">Listening...</span>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="glass rounded-2xl p-8 text-center">
+            <div class="spinner mx-auto mb-4"></div>
+            <p class="text-white text-lg">Loading weather data...</p>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 glass rounded-xl p-4 transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex items-center gap-3">
+            <i id="notificationIcon" class="fas fa-info-circle text-blue-300"></i>
+            <span id="notificationText" class="text-white">Notification</span>
+        </div>
+    </div>
+    
+    <!-- External Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

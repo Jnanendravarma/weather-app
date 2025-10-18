@@ -1,0 +1,6 @@
+@echo off
+echo Starting WeatherSphere Frontend Server...
+cd /d "C:\Users\Jnanendravarma927\Downloads\weather\frontend"
+echo Current directory: %CD%
+echo Starting frontend on port 8080...
+python -m http.server 8080

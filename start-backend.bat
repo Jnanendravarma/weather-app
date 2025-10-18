@@ -1,0 +1,6 @@
+@echo off
+echo Starting WeatherSphere Backend Server...
+cd /d "C:\Users\Jnanendravarma927\Downloads\weather\backend"
+echo Current directory: %CD%
+echo Starting server...
+node server.js
