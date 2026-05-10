@@ -206,37 +206,103 @@
             box-shadow: 0 12px 30px rgba(2, 6, 23, 0.3);
             border-color: rgba(56, 189, 248, 0.4);
         }
+
+        .sun-cycle-strip {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 1rem;
+            background: rgba(15, 23, 42, 0.32);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .sun-track {
+            position: relative;
+            width: 100%;
+            height: 8px;
+            border-radius: 9999px;
+            background: rgba(148, 163, 184, 0.3);
+            overflow: hidden;
+        }
+
+        .sun-track-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .hourly-scroll {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(120px, 1fr);
+            gap: 0.85rem;
+            overflow-x: auto;
+            padding-bottom: 0.4rem;
+            scroll-snap-type: x mandatory;
+        }
+
+        .hourly-item {
+            scroll-snap-align: start;
+            padding: 0.85rem;
+            border-radius: 0.95rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            text-align: center;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .hourly-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.45);
+        }
         
         /* Dark Background Themes - Better Visibility */
         .theme-cosmic {
+            --accent: #60a5fa;
+            --accent-2: #818cf8;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
         }
         
         .theme-ocean {
+            --accent: #22d3ee;
+            --accent-2: #0ea5e9;
             background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);
         }
         
         .theme-sunset {
+            --accent: #fb923c;
+            --accent-2: #f43f5e;
             background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%);
         }
         
         .theme-forest {
+            --accent: #4ade80;
+            --accent-2: #22c55e;
             background: linear-gradient(135deg, #14532d 0%, #166534 50%, #15803d 100%);
         }
         
         .theme-night {
+            --accent: #38bdf8;
+            --accent-2: #6366f1;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
         }
         
         .theme-aurora {
+            --accent: #a78bfa;
+            --accent-2: #22d3ee;
             background: linear-gradient(135deg, #581c87 0%, #7c3aed 50%, #8b5cf6 100%);
         }
         
         .theme-volcano {
+            --accent: #fb7185;
+            --accent-2: #f97316;
             background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #dc2626 100%);
         }
         
         .theme-cyber {
+            --accent: #22d3ee;
+            --accent-2: #3b82f6;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
         }
         
@@ -851,6 +917,31 @@
                     </div>
                 </div>
             </div>
+
+            <div class="sun-cycle-strip">
+                <div class="flex items-center justify-between text-sm text-slate-200 mb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-sun text-amber-300"></i>
+                        <span id="sunriseTime">Sunrise --:--</span>
+                    </div>
+                    <div class="text-cyan-200 font-semibold" id="dayLength">Daylight --h --m</div>
+                    <div class="flex items-center gap-2">
+                        <span id="sunsetTime">Sunset --:--</span>
+                        <i class="fas fa-moon text-indigo-200"></i>
+                    </div>
+                </div>
+                <div class="sun-track">
+                    <div id="sunProgress" class="sun-track-fill"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="hourlySection" class="glass rounded-3xl p-6 mb-6 hidden">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-clock text-cyan-300"></i>
+                Next 24 Hours
+            </h3>
+            <div id="hourlyContainer" class="hourly-scroll"></div>
         </section>
         
         <!-- Charts Section -->

@@ -86,6 +86,14 @@ const utils = {
             day: 'numeric'
         });
     },
+
+    // Format time (local to user's browser)
+    formatTime: (timestamp) => {
+        return new Date(timestamp * 1000).toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    },
     
     // Get weather icon
     getWeatherIcon: (condition, isDay = true) => {
@@ -958,6 +966,7 @@ class WeatherApp {
             this.addWeatherTransition();
 
             this.displayCurrentWeather(weatherData);
+            this.displayHourlyForecast(forecastData);
             this.displayForecast(forecastData);
             
             // Get air quality data
@@ -1070,6 +1079,9 @@ class WeatherApp {
         document.getElementById('windSpeed').textContent = `${Math.round(weather.wind.speed * 3.6)} km/h`;
         document.getElementById('pressure').textContent = `${weather.main.pressure} hPa`;
 
+        // Sunrise / Sunset strip
+        this.displaySunCycle(weather);
+
         // Update active unit button
         this.updateUnitButtons();
 
@@ -1077,6 +1089,56 @@ class WeatherApp {
         if (this.isAutoThemeEnabled()) {
             this.updateWeatherBackground(weather.weather[0].main.toLowerCase(), isDay);
         }
+    }
+
+    displaySunCycle(weather) {
+        const sunrise = weather.sys.sunrise;
+        const sunset = weather.sys.sunset;
+        const now = Math.floor(Date.now() / 1000);
+
+        document.getElementById('sunriseTime').textContent = `Sunrise ${utils.formatTime(sunrise)}`;
+        document.getElementById('sunsetTime').textContent = `Sunset ${utils.formatTime(sunset)}`;
+
+        const daySeconds = Math.max(0, sunset - sunrise);
+        const dayHours = Math.floor(daySeconds / 3600);
+        const dayMinutes = Math.floor((daySeconds % 3600) / 60);
+        document.getElementById('dayLength').textContent = `Daylight ${dayHours}h ${dayMinutes}m`;
+
+        let progress = 0;
+        if (now > sunrise && now < sunset && daySeconds > 0) {
+            progress = ((now - sunrise) / daySeconds) * 100;
+        } else if (now >= sunset) {
+            progress = 100;
+        }
+
+        document.getElementById('sunProgress').style.width = `${Math.min(100, Math.max(0, progress)).toFixed(1)}%`;
+    }
+
+    displayHourlyForecast(forecast) {
+        const section = document.getElementById('hourlySection');
+        const container = document.getElementById('hourlyContainer');
+
+        const upcoming = forecast.list.slice(0, 8);
+        container.innerHTML = upcoming.map((item, index) => {
+            const label = index === 0
+                ? 'Now'
+                : new Date(item.dt * 1000).toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    hour12: true
+                });
+
+            return `
+                <div class="hourly-item">
+                    <div class="text-xs text-slate-200 mb-2">${label}</div>
+                    <div class="text-3xl mb-2">${utils.getWeatherIcon(item.weather[0].description)}</div>
+                    <div class="text-white font-semibold">${utils.formatTemperature(item.main.temp)}</div>
+                    <div class="text-xs text-slate-300 mt-1 capitalize">${item.weather[0].main}</div>
+                    <div class="text-xs text-cyan-200 mt-2"><i class="fas fa-tint mr-1"></i>${item.main.humidity}%</div>
+                </div>
+            `;
+        }).join('');
+
+        section.classList.remove('hidden');
     }
 
     isAutoThemeEnabled() {
