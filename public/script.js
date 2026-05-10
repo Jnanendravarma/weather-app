@@ -835,34 +835,19 @@ class WeatherApp {
         });
 
         // Modal close buttons
-        document.getElementById('closeTheme').addEventListener('click', () => {
-            this.hideThemeModal();
-        });
-
         document.getElementById('closeSettings').addEventListener('click', () => {
             this.hideSettingsModal();
         });
 
-        // Theme selection
-        document.querySelectorAll('.theme-option').forEach(button => {
-            button.addEventListener('click', () => {
-                const theme = button.dataset.theme;
-                themeManager.setTheme(theme);
-                this.hideThemeModal();
-            });
-        });
+        // Note: Theme selection handled in earlier theme button listener
 
         // Settings toggles
         this.setupSettingsEventListeners();
 
         // Click outside modals to close
         document.addEventListener('click', (e) => {
-            const themeModal = document.getElementById('themeModal');
             const settingsModal = document.getElementById('settingsModal');
             
-            if (e.target === themeModal) {
-                this.hideThemeModal();
-            }
             if (e.target === settingsModal) {
                 this.hideSettingsModal();
             }
@@ -1404,13 +1389,7 @@ class WeatherApp {
         fahrenheitBtn.classList.toggle('bg-white/20', appState.currentUnit === 'fahrenheit');
     }
 
-    showThemeModal() {
-        document.getElementById('themeModal').classList.remove('hidden');
-    }
-
-    hideThemeModal() {
-        document.getElementById('themeModal').classList.add('hidden');
-    }
+    // Theme modal functions removed - theme is now in header dropdown
 
     showSettingsModal() {
         document.getElementById('settingsModal').classList.remove('hidden');

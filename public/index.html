@@ -45,33 +45,36 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
+        // Wait for Tailwind to be loaded
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: {
+                                50: '#f0f9ff',
+                                100: '#e0f2fe',
+                                500: '#3b82f6',
+                                600: '#2563eb',
+                                700: '#1d4ed8',
+                                900: '#1e3a8a',
+                            }
+                        },
+                        fontFamily: {
+                            'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        },
+                        animation: {
+                            'fade-in': 'fadeIn 0.5s ease-in-out',
+                            'slide-up': 'slideUp 0.5s ease-out',
+                            'bounce-in': 'bounceIn 0.6s ease-out',
+                            'pulse-slow': 'pulse 3s infinite',
+                            'float': 'float 6s ease-in-out infinite',
+                            'drift': 'drift 20s infinite linear',
+                            'rainbow': 'rainbow 3s linear infinite',
+                        },
+                        backdropBlur: {
+                            'xs': '2px',
                         }
-                    },
-                    fontFamily: {
-                        'sans': ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-up': 'slideUp 0.5s ease-out',
-                        'bounce-in': 'bounceIn 0.6s ease-out',
-                        'pulse-slow': 'pulse 3s infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'drift': 'drift 20s infinite linear',
-                        'rainbow': 'rainbow 3s linear infinite',
-                    },
-                    backdropBlur: {
-                        'xs': '2px',
                     }
                 }
             }
@@ -745,52 +748,6 @@
                 </div>
             </div>
         </section>
-    </div>
-    
-    <!-- Theme Selector Modal -->
-    <div id="themeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="glass rounded-2xl p-6 m-4 max-w-md w-full animate-bounce-in">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-white">Choose Theme</h3>
-                <button id="closeTheme" class="text-white hover:text-blue-300 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="cosmic">
-                    <div class="w-full h-8 rounded mb-2 theme-cosmic"></div>
-                    <span class="text-sm">Cosmic</span>
-                </button>
-                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="ocean">
-                    <div class="w-full h-8 rounded mb-2 theme-ocean"></div>
-                    <span class="text-sm">Ocean</span>
-                </button>
-                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="sunset">
-                    <div class="w-full h-8 rounded mb-2 theme-sunset"></div>
-                    <span class="text-sm">Sunset</span>
-                </button>
-                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="forest">
-                    <div class="w-full h-8 rounded mb-2 theme-forest"></div>
-                    <span class="text-sm">Forest</span>
-                </button>
-                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="night">
-                    <div class="w-full h-8 rounded mb-2 theme-night"></div>
-                    <span class="text-sm">Night</span>
-                </button>
-                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="aurora">
-                    <div class="w-full h-8 rounded mb-2 theme-aurora"></div>
-                    <span class="text-sm">Aurora</span>
-                </button>
-                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="volcano">
-                    <div class="w-full h-8 rounded mb-2 theme-volcano"></div>
-                    <span class="text-sm">Volcano</span>
-                </button>
-                <button class="theme-option p-4 rounded-xl text-white text-center transition-all hover:scale-105" data-theme="cyber">
-                    <div class="w-full h-8 rounded mb-2 theme-cyber"></div>
-                    <span class="text-sm">Cyber</span>
-                </button>
-            </div>
-        </div>
     </div>
     
     <!-- Settings Modal -->
