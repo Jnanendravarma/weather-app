@@ -1,9 +1,10 @@
 // Weather App - Professional Interface
 // Configuration
 const CONFIG = {
-    API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:5000/api' 
-        : '/api',
+    // Always use relative /api — the backend (port 5000) serves
+    // both the frontend (express.static) AND the API endpoints.
+    // This means ONE server handles everything — no CORS, no second server.
+    API_BASE_URL: '/api',
     STORAGE_KEY: 'weatherapp_settings',
     VOICE_ENABLED: true,
     DEFAULT_THEME: 'night'
@@ -981,8 +982,10 @@ class WeatherApp {
             // Update charts
             chartManager.updateCharts(forecastData.list);
 
-            // Voice announcement
-            voiceAssistant.announceWeather(weatherData);
+            // Voice announcement — only if user explicitly enabled it
+            if (appState.settings.voiceEnabled && appState.settings.announcementsEnabled) {
+                voiceAssistant.announceWeather(weatherData);
+            }
 
             // Save last searched location
             localStorage.setItem('lastLocation', city);
@@ -1059,8 +1062,15 @@ class WeatherApp {
     }
 
     displayCurrentWeather(weather) {
-        // Show weather section
-        document.getElementById('currentWeather').classList.remove('hidden');
+        // Hide empty state, show weather sections
+        const empty = document.getElementById('emptyState');
+        if(empty) empty.style.display = 'none';
+        // Support both old ID (currentWeather) and new ID (heroSection)
+        const heroEl = document.getElementById('heroSection') || document.getElementById('currentWeather');
+        if(heroEl) heroEl.classList.remove('hidden');
+        // Also handle original ID for compatibility
+        const cw = document.getElementById('currentWeather');
+        if(cw && cw !== heroEl) cw.classList.remove('hidden');
 
         // Update elements
         document.getElementById('cityName').textContent = weather.name;

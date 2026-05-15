@@ -1,51 +1,53 @@
 // Service Worker for WeatherSphere PWA
-const CACHE_NAME = 'weathersphere-v1';
-const urlsToCache = [
-    '/',
-    '/index.html',
-    '/script.js',
-    '/manifest.json'
-];
+// Bump version to force cache clear on every deploy
+const CACHE_NAME = 'weathersphere-v5';
 
-// Install event
+// Install — skip waiting so new SW activates immediately
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
-            })
-            .catch((error) => {
-                console.log('Cache addAll failed:', error);
-            })
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(['/manifest.json']).catch(() => {});
+        })
     );
 });
 
-// Fetch event
-self.addEventListener('fetch', (event) => {
-    // Only cache same-origin requests
-    if (event.request.url.startsWith(self.location.origin)) {
-        event.respondWith(
-            caches.match(event.request)
-                .then((response) => {
-                    // Return cached version or fetch from network
-                    return response || fetch(event.request);
-                })
-        );
-    }
-});
-
-// Activate event
+// Activate — delete ALL old caches
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
+        caches.keys().then((names) =>
+            Promise.all(names.map((name) => {
+                if (name !== CACHE_NAME) return caches.delete(name);
+            }))
+        ).then(() => self.clients.claim())
+    );
+});
+
+// Fetch — Network-first for HTML and JS so updates always show
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+
+    // Never cache API calls or external CDN resources
+    if (url.pathname.startsWith('/api') || url.hostname !== self.location.hostname) {
+        return;
+    }
+
+    // Network-first for HTML and JS files (always fresh)
+    if (url.pathname.endsWith('.html') || url.pathname.endsWith('.js') || url.pathname === '/') {
+        event.respondWith(
+            fetch(event.request).catch(() => caches.match(event.request))
+        );
+        return;
+    }
+
+    // Cache-first for other static assets
+    event.respondWith(
+        caches.match(event.request).then((cached) => {
+            return cached || fetch(event.request).then((response) => {
+                const clone = response.clone();
+                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+                return response;
+            });
         })
     );
 });

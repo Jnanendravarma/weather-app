@@ -1,1087 +1,407 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WeatherSphere - Professional Weather App</title>
-    <meta name="description" content="Professional real-time weather application with AI voice assistant, stunning animations, and smart insights">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiMzYjgyZjYiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xOCAxMGgtMS4yNkE4IDggMCAxIDAgOSAyMGg5YTUgNSAwIDAgMCAwLTEweiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMzIiIGZpbGw9IiMzYjgyZjYiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xOCAxMGgtMS4yNkE4IDggMCAxIDAgOSAyMGg5YTUgNSAwIDAgMCAwLTEweiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=">
-    
-    <!-- External Libraries -->
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
-    <!-- TailwindCSS CDN -->
-    <script>
-        // Suppress TailwindCSS CDN warning for demo purposes
-        if (typeof console !== 'undefined') {
-            const originalWarn = console.warn;
-            const originalLog = console.log;
-            
-            console.warn = function(...args) {
-                if (typeof args[0] === 'string' && 
-                    (args[0].includes('cdn.tailwindcss.com') ||
-                     args[0].includes('should not be used in production'))) {
-                    return;
-                }
-                originalWarn.apply(console, args);
-            };
-            
-            console.log = function(...args) {
-                if (typeof args[0] === 'string' && 
-                    (args[0].includes('cdn.tailwindcss.com') ||
-                     args[0].includes('should not be used in production'))) {
-                    return;
-                }
-                originalLog.apply(console, args);
-            };
-        }
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Wait for Tailwind to be loaded
-        if (typeof tailwind !== 'undefined') {
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            primary: {
-                                50: '#f0f9ff',
-                                100: '#e0f2fe',
-                                500: '#3b82f6',
-                                600: '#2563eb',
-                                700: '#1d4ed8',
-                                900: '#1e3a8a',
-                            }
-                        },
-                        fontFamily: {
-                            'sans': ['Manrope', 'system-ui', 'sans-serif'],
-                            'display': ['Sora', 'system-ui', 'sans-serif'],
-                        },
-                        animation: {
-                            'fade-in': 'fadeIn 0.5s ease-in-out',
-                            'slide-up': 'slideUp 0.5s ease-out',
-                            'bounce-in': 'bounceIn 0.6s ease-out',
-                            'pulse-slow': 'pulse 3s infinite',
-                            'float': 'float 6s ease-in-out infinite',
-                            'drift': 'drift 20s infinite linear',
-                            'rainbow': 'rainbow 3s linear infinite',
-                        },
-                        backdropBlur: {
-                            'xs': '2px',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        :root {
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --surface-border: rgba(255, 255, 255, 0.12);
-            --surface-bg: rgba(15, 23, 42, 0.38);
-            --surface-bg-strong: rgba(15, 23, 42, 0.5);
-            --surface-bg-soft: rgba(255, 255, 255, 0.06);
-            --accent: #38bdf8;
-            --accent-2: #22d3ee;
-        }
-
-        body {
-            color: var(--text-primary);
-            font-family: 'Manrope', system-ui, sans-serif;
-        }
-
-        h1, h2, h3 {
-            font-family: 'Sora', system-ui, sans-serif;
-            letter-spacing: -0.02em;
-        }
-
-        /* Custom Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        @keyframes bounceIn {
-            0% { transform: scale(0.3); opacity: 0; }
-            50% { transform: scale(1.05); }
-            70% { transform: scale(0.9); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-        
-        @keyframes drift {
-            0% { transform: translateX(-100vw) rotate(0deg); }
-            100% { transform: translateX(100vw) rotate(360deg); }
-        }
-        
-        /* No Glow Effects */
-        
-        @keyframes rainbow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        /* Premium Glass Morphism */
-        .glass {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), var(--surface-bg));
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid var(--surface-border);
-            box-shadow: 0 14px 36px rgba(2, 6, 23, 0.35);
-            transition: all 0.28s ease;
-        }
-        
-        .glass:hover {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.45));
-            transform: translateY(-2px);
-            box-shadow: 0 18px 42px rgba(2, 6, 23, 0.42);
-        }
-        
-        .glass-strong {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.09), var(--surface-bg-strong));
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-        }
-        
-        .glass-subtle {
-            background: var(--surface-bg-soft);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        #cityInput {
-            background: rgba(15, 23, 42, 0.36);
-            border-color: rgba(148, 163, 184, 0.35);
-        }
-
-        #cityInput:focus {
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35), 0 10px 30px rgba(6, 182, 212, 0.18);
-        }
-
-        #searchBtn {
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        #searchBtn:hover {
-            filter: brightness(1.08);
-        }
-
-        #currentWeather .text-7xl {
-            font-weight: 700;
-            letter-spacing: -0.03em;
-        }
-
-        #forecastContainer > div,
-        #airQualitySection .glass-subtle,
-        #currentWeather .glass-subtle {
-            transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
-        }
-
-        #forecastContainer > div:hover,
-        #airQualitySection .glass-subtle:hover,
-        #currentWeather .glass-subtle:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.3);
-            border-color: rgba(56, 189, 248, 0.4);
-        }
-
-        .sun-cycle-strip {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border-radius: 1rem;
-            background: rgba(15, 23, 42, 0.32);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .sun-track {
-            position: relative;
-            width: 100%;
-            height: 8px;
-            border-radius: 9999px;
-            background: rgba(148, 163, 184, 0.3);
-            overflow: hidden;
-        }
-
-        .sun-track-fill {
-            height: 100%;
-            border-radius: inherit;
-            background: linear-gradient(90deg, var(--accent), var(--accent-2));
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-
-        .hourly-scroll {
-            display: grid;
-            grid-auto-flow: column;
-            grid-auto-columns: minmax(120px, 1fr);
-            gap: 0.85rem;
-            overflow-x: auto;
-            padding-bottom: 0.4rem;
-            scroll-snap-type: x mandatory;
-        }
-
-        .hourly-item {
-            scroll-snap-align: start;
-            padding: 0.85rem;
-            border-radius: 0.95rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            text-align: center;
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-
-        .hourly-item:hover {
-            transform: translateY(-2px);
-            border-color: rgba(56, 189, 248, 0.45);
-        }
-        
-        /* Dark Background Themes - Better Visibility */
-        .theme-cosmic {
-            --accent: #60a5fa;
-            --accent-2: #818cf8;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-        }
-        
-        .theme-ocean {
-            --accent: #22d3ee;
-            --accent-2: #0ea5e9;
-            background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);
-        }
-        
-        .theme-sunset {
-            --accent: #fb923c;
-            --accent-2: #f43f5e;
-            background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%);
-        }
-        
-        .theme-forest {
-            --accent: #4ade80;
-            --accent-2: #22c55e;
-            background: linear-gradient(135deg, #14532d 0%, #166534 50%, #15803d 100%);
-        }
-        
-        .theme-night {
-            --accent: #38bdf8;
-            --accent-2: #6366f1;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-        }
-        
-        .theme-aurora {
-            --accent: #a78bfa;
-            --accent-2: #22d3ee;
-            background: linear-gradient(135deg, #581c87 0%, #7c3aed 50%, #8b5cf6 100%);
-        }
-        
-        .theme-volcano {
-            --accent: #fb7185;
-            --accent-2: #f97316;
-            background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #dc2626 100%);
-        }
-        
-        .theme-cyber {
-            --accent: #22d3ee;
-            --accent-2: #3b82f6;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-        }
-        
-        /* Floating Elements */
-        .floating-element {
-            position: absolute;
-            pointer-events: none;
-            opacity: 0.3;
-            animation: drift var(--duration, 20s) infinite linear;
-        }
-        
-        /* Animated Weather Backgrounds - Subtle Effects */
-        .weather-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            overflow: hidden;
-            transition: all 1.5s ease-in-out;
-        }
-        
-        /* Sunny Day Animation - Dark but Warm */
-        .sunny-bg {
-            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0c4a6e 100%);
-            animation: sunnyGradient 30s ease-in-out infinite;
-        }
-        
-        @keyframes sunnyGradient {
-            0%, 100% { background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0c4a6e 100%); }
-            50% { background: linear-gradient(135deg, #075985 0%, #0284c7 50%, #075985 100%); }
-        }
-        
-        /* Cloudy Weather Animation - Dark & Visible */
-        .cloudy-bg {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 50%, #374151 100%);
-            animation: cloudyGradient 25s ease-in-out infinite;
-        }
-        
-        @keyframes cloudyGradient {
-            0%, 100% { background: linear-gradient(135deg, #374151 0%, #1f2937 50%, #374151 100%); }
-            50% { background: linear-gradient(135deg, #4b5563 0%, #374151 50%, #4b5563 100%); }
-        }
-        
-        /* Rainy Weather Animation - Dark & Calm */
-        .rainy-bg {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%);
-            animation: rainyGradient 20s ease-in-out infinite;
-        }
-        
-        @keyframes rainyGradient {
-            0%, 100% { background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%); }
-            50% { background: linear-gradient(135deg, #334155 0%, #1e293b 50%, #334155 100%); }
-        }
-        
-        /* Snowy Weather Animation - Dark Winter */
-        .snowy-bg {
-            background: linear-gradient(135deg, #374151 0%, #4b5563 50%, #374151 100%);
-            animation: snowyGradient 35s ease-in-out infinite;
-        }
-        
-        @keyframes snowyGradient {
-            0%, 100% { background: linear-gradient(135deg, #374151 0%, #4b5563 50%, #374151 100%); }
-            50% { background: linear-gradient(135deg, #6b7280 0%, #374151 50%, #6b7280 100%); }
-        }
-        
-        /* Night Weather Animation - Deep Dark */
-        .night-bg {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            animation: nightGradient 40s ease-in-out infinite;
-        }
-        
-        @keyframes nightGradient {
-            0%, 100% { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
-            50% { background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%); }
-        }
-        
-        /* Animated Cloud Elements - Subtle */
-        .cloud {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50px;
-            opacity: 0.3;
-            animation: cloudFloat 45s infinite linear;
-        }
-        
-        .cloud:before,
-        .cloud:after {
-            content: '';
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50px;
-        }
-        
-        .cloud.cloud1 {
-            width: 120px;
-            height: 50px;
-            top: 15%;
-            animation-duration: 50s;
-            animation-delay: -10s;
-        }
-        
-        .cloud.cloud1:before {
-            width: 60px;
-            height: 60px;
-            top: -30px;
-            left: 15px;
-        }
-        
-        .cloud.cloud1:after {
-            width: 70px;
-            height: 50px;
-            top: -20px;
-            right: 15px;
-        }
-        
-        .cloud.cloud2 {
-            width: 100px;
-            height: 40px;
-            top: 45%;
-            animation-duration: 40s;
-            animation-delay: -20s;
-        }
-        
-        .cloud.cloud2:before {
-            width: 50px;
-            height: 50px;
-            top: -25px;
-            left: 20px;
-        }
-        
-        .cloud.cloud2:after {
-            width: 60px;
-            height: 40px;
-            top: -15px;
-            right: 20px;
-        }
-        
-        .cloud.cloud3 {
-            width: 140px;
-            height: 60px;
-            top: 70%;
-            animation-duration: 55s;
-            animation-delay: -30s;
-        }
-        
-        .cloud.cloud3:before {
-            width: 70px;
-            height: 70px;
-            top: -35px;
-            left: 25px;
-        }
-        
-        .cloud.cloud3:after {
-            width: 80px;
-            height: 60px;
-            top: -25px;
-            right: 25px;
-        }
-        
-        @keyframes cloudFloat {
-            from {
-                left: -200px;
-            }
-            to {
-                left: calc(100% + 200px);
-            }
-        }
-        
-        /* Rain Drops Animation - Gentle */
-        .rain-drop {
-            position: absolute;
-            width: 1px;
-            height: 15px;
-            background: linear-gradient(transparent, rgba(255, 255, 255, 0.4), transparent);
-            animation: rainFall 2s infinite linear;
-            border-radius: 50px;
-            opacity: 0.6;
-        }
-        
-        @keyframes rainFall {
-            from {
-                top: -20px;
-                opacity: 0.6;
-            }
-            to {
-                top: 100vh;
-                opacity: 0;
-            }
-        }
-        
-        /* Snow Flakes Animation - Soft */
-        .snow-flake {
-            position: absolute;
-            color: rgba(255, 255, 255, 0.5);
-            user-select: none;
-            pointer-events: none;
-            animation: snowFall 15s infinite linear;
-            opacity: 0.7;
-        }
-        
-        @keyframes snowFall {
-            from {
-                top: -100px;
-                transform: translateX(0px) rotate(0deg);
-                opacity: 0.7;
-            }
-            to {
-                top: 100vh;
-                transform: translateX(50px) rotate(180deg);
-                opacity: 0;
-            }
-        }
-        
-        /* Stars Animation for Night - Subtle */
-        .star {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            animation: starTwinkle 4s infinite ease-in-out;
-        }
-        
-        @keyframes starTwinkle {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.05); }
-        }
-        
-        /* Sun Animation - Simple */
-        .sun {
-            position: absolute;
-            top: 15%;
-            right: 15%;
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle, rgba(255, 193, 7, 0.6) 0%, rgba(255, 152, 0, 0.4) 100%);
-            border-radius: 50%;
-            animation: sunPulse 12s infinite ease-in-out;
-            opacity: 0.6;
-        }
-        
-        @keyframes sunPulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.02); opacity: 0.7; }
-        }
-        
-        /* Lightning Animation - Subtle */
-        .lightning {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.4);
-            opacity: 0;
-            animation: lightningFlash 8s infinite;
-        }
-        
-        @keyframes lightningFlash {
-            0%, 94%, 96%, 100% { opacity: 0; }
-            95%, 95.5% { opacity: 0.4; }
-        }
-        
-        /* Rainbow Text */
-        .rainbow-text {
-            background: linear-gradient(95deg, #7dd3fc, #22d3ee, #a78bfa, #f472b6);
-            background-size: 400% 400%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: rainbow 7s linear infinite;
-        }
-        
-        /* Enhanced Glass Effect for Weather Background */
-        .weather-glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        /* Dynamic Weather Elements - More Subtle */
-        .dynamic-floating {
-            opacity: 0.3;
-            z-index: 1;
-        }
-        
-        /* Floating Elements - Reduced Opacity */
-        .floating-element {
-            position: absolute;
-            pointer-events: none;
-            opacity: 0.15;
-            animation: drift var(--duration, 40s) infinite linear;
-        }
-        
-        /* Loading Spinner */
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid white;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Voice Animation */
-        .voice-pulse {
-            animation: voicePulse 1.5s ease-in-out infinite;
-        }
-        
-        @keyframes voicePulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
-        
-        /* Responsive Text */
-        .responsive-text {
-            font-size: clamp(1rem, 4vw, 2rem);
-        }
-        
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
-            body { padding: 8px; }
-
-            header { padding: 1rem !important; }
-
-            header .flex {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            #themeDropdown {
-                position: fixed !important;
-                top: 50% !important;
-                left: 50% !important;
-                right: auto !important;
-                transform: translate(-50%, -50%) !important;
-                margin-top: 0 !important;
-                width: 90vw !important;
-                max-width: 420px;
-                max-height: 70vh;
-                overflow-y: auto;
-                z-index: 9999 !important;
-            }
-
-            h1 { font-size: 1.5rem; }
-            h2 { font-size: 1.25rem; }
-
-            #cityInput { font-size: 16px; }
-
-            #currentWeather .grid,
-            #airQualitySection .grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 4px; }
-            header { padding: 0.75rem !important; }
-
-            h1 { font-size: 1.25rem; }
-            h2 { font-size: 1rem; }
-
-            #themeDropdown {
-                width: 95vw !important;
-                max-width: 95vw;
-            }
-
-            #currentWeather .grid,
-            #airQualitySection .grid,
-            #forecastContainer {
-                grid-template-columns: 1fr;
-            }
-
-            #cityInput {
-                font-size: 16px;
-                padding: 0.75rem;
-            }
-
-            #searchBtn,
-            #locationBtn,
-            #voiceSearchBtn {
-                padding: 0.65rem 0.9rem;
-                font-size: 0.875rem;
-            }
-        }
-    </style>
-</head>
-<body class="theme-cosmic min-h-screen overflow-x-hidden font-sans">
-    
-    <!-- Animated Weather Background -->
-    <div id="weatherBackground" class="weather-bg sunny-bg">
-        <!-- Animated Clouds -->
-        <div class="cloud cloud1"></div>
-        <div class="cloud cloud2"></div>
-        <div class="cloud cloud3"></div>
-        
-        <!-- Sun Element -->
-        <div id="sunElement" class="sun"></div>
-        
-        <!-- Rain Container -->
-        <div id="rainContainer" style="display: none;"></div>
-        
-        <!-- Snow Container -->
-        <div id="snowContainer" style="display: none;"></div>
-        
-        <!-- Stars Container -->
-        <div id="starsContainer" style="display: none;"></div>
-        
-        <!-- Lightning Effect -->
-        <div id="lightningEffect" class="lightning" style="display: none;"></div>
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WeatherSphere</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>⛅</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#0b0f1a;color:#e2e8f0;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+:root{--accent:#60a5fa;--accent2:#818cf8;--bg1:#0b0f1a;--bg2:#111827;--bg3:#1e293b;--border:rgba(255,255,255,0.08);--text1:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--glass:rgba(255,255,255,0.05);--radius:16px}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.03em}
+::-webkit-scrollbar{height:4px;width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(96,165,250,0.4);border-radius:99px}
+.card{background:rgba(17,24,39,0.8);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:var(--radius)}
+.card-hover{transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s}
+.card-hover:hover{transform:translateY(-2px);border-color:rgba(96,165,250,0.25);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+/* HEADER */
+#appHeader{position:sticky;top:0;z-index:100;background:rgba(11,15,26,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0.9rem 1.25rem}
+.header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.logo{display:flex;align-items:center;gap:0.6rem;text-decoration:none;flex-shrink:0}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#60a5fa,#818cf8);display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff;box-shadow:0 4px 14px rgba(96,165,250,0.3)}
+.logo-text{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:var(--text1);letter-spacing:-0.03em}
+.search-wrap{flex:1;position:relative;max-width:480px;margin:0 auto}
+.search-wrap i.search-ic{position:absolute;left:0.9rem;top:50%;transform:translateY(-50%);color:var(--text3);font-size:0.8rem;pointer-events:none}
+#cityInput{width:100%;background:rgba(30,41,59,0.8);border:1px solid var(--border);border-radius:999px;padding:0.6rem 1rem 0.6rem 2.4rem;color:var(--text1);font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+#cityInput::placeholder{color:var(--text3)}
+#cityInput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(96,165,250,0.15)}
+#suggestions{position:absolute;top:calc(100% + 8px);left:0;right:0;background:#1e293b;border:1px solid var(--border);border-radius:12px;overflow:hidden;z-index:200;display:none}
+#suggestions.visible{display:block}
+.header-actions{display:flex;align-items:center;gap:0.5rem;flex-shrink:0}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--glass);color:var(--text2);font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.icon-btn:hover{background:rgba(96,165,250,0.1);border-color:var(--accent);color:var(--accent)}
+/* MAIN */
+#appMain{max-width:1280px;margin:0 auto;padding:1.5rem 1.25rem 3rem}
+/* HERO SECTION */
+#heroSection{display:grid;grid-template-columns:1fr;gap:1rem;margin-bottom:1.25rem}
+@media(min-width:768px){#heroSection{grid-template-columns:1fr 1fr;align-items:start}}
+@media(min-width:1024px){#heroSection{grid-template-columns:2fr 1fr}}
+.hero-card{padding:2rem;background:linear-gradient(135deg,rgba(30,41,59,0.9) 0%,rgba(17,24,39,0.95) 100%);border:1px solid var(--border);border-radius:24px;position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(96,165,250,0.06) 0%,transparent 70%);pointer-events:none}
+.hero-location{display:flex;align-items:center;gap:0.4rem;margin-bottom:0.5rem}
+.hero-city{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.6rem,4vw,2.5rem);font-weight:700;color:var(--text1);letter-spacing:-0.04em;line-height:1.1}
+.hero-country{font-size:0.85rem;color:var(--text2);font-weight:500}
+.hero-temp-row{display:flex;align-items:flex-end;gap:1rem;margin:1rem 0}
+#temperature{font-family:'Space Grotesk',sans-serif;font-size:clamp(4rem,12vw,7rem);font-weight:700;color:var(--text1);letter-spacing:-0.05em;line-height:1}
+.hero-temp-meta{padding-bottom:0.5rem}
+#description{font-size:1rem;font-weight:600;color:var(--text1);text-transform:capitalize;margin-bottom:0.2rem}
+#feelsLike{font-size:0.8rem;color:var(--accent)}
+.unit-toggle{display:inline-flex;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:999px;padding:3px;margin-top:0.75rem}
+.unit-btn{padding:0.3rem 1rem;border-radius:999px;border:none;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:var(--text2);background:transparent}
+.unit-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(96,165,250,0.35)}
+#weatherIcon{font-size:3rem;line-height:1}
+/* STAT TILES */
+.stats-card{padding:1.25rem;border-radius:24px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.stat-item{background:rgba(30,41,59,0.6);border:1px solid var(--border);border-radius:12px;padding:1rem;display:flex;flex-direction:column;gap:0.3rem;transition:all 0.2s}
+.stat-item:hover{border-color:rgba(96,165,250,0.3);background:rgba(96,165,250,0.05)}
+.stat-icon{font-size:1.1rem;color:var(--accent);margin-bottom:0.2rem}
+.stat-value{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text1)}
+.stat-label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3)}
+/* SUN STRIP */
+.sun-strip{margin-top:1rem;padding:0.9rem 1rem;background:rgba(30,41,59,0.5);border:1px solid var(--border);border-radius:12px}
+.sun-row{display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--text2);margin-bottom:0.5rem}
+.sun-bar{height:4px;border-radius:99px;background:rgba(100,116,139,0.2)}
+.sun-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#fbbf24,var(--accent));transition:width 0.7s ease}
+/* HOURLY */
+#hourlySection{margin-bottom:1.25rem}
+.section-hdr{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;font-family:'Space Grotesk',sans-serif;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3)}
+.section-hdr i{color:var(--accent)}
+.hourly-scroll{display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.hourly-item{flex:0 0 90px;scroll-snap-align:start;background:rgba(30,41,59,0.7);border:1px solid var(--border);border-radius:14px;padding:0.9rem 0.5rem;text-align:center;transition:all 0.2s}
+.hourly-item:hover,.hourly-item.active{border-color:var(--accent);background:rgba(96,165,250,0.1)}
+.hourly-time{font-size:0.72rem;font-weight:600;color:var(--text3);margin-bottom:0.4rem}
+.hourly-icon{font-size:1.4rem;margin-bottom:0.4rem}
+.hourly-temp{font-family:'Space Grotesk',sans-serif;font-size:0.95rem;font-weight:700;color:var(--text1)}
+.hourly-rain{font-size:0.68rem;color:var(--accent);margin-top:0.2rem}
+/* FORECAST */
+#forecastSection{margin-bottom:1.25rem}
+.forecast-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem}
+@media(min-width:480px){.forecast-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:768px){.forecast-grid{grid-template-columns:repeat(5,1fr)}}
+.forecast-card{background:rgba(30,41,59,0.7);border:1px solid var(--border);border-radius:14px;padding:1rem 0.75rem;text-align:center;transition:all 0.2s;cursor:default}
+.forecast-card:hover{border-color:rgba(96,165,250,0.3);transform:translateY(-2px)}
+.forecast-day{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text3);margin-bottom:0.4rem}
+.forecast-icon{font-size:1.6rem;margin-bottom:0.4rem}
+.forecast-temps{display:flex;justify-content:center;gap:0.4rem;font-family:'Space Grotesk',sans-serif;font-size:0.88rem}
+.forecast-high{font-weight:700;color:var(--text1)}
+.forecast-low{color:var(--text3)}
+/* AQI */
+#airQualitySection{margin-bottom:1.25rem}
+.aqi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem}
+@media(min-width:480px){.aqi-grid{grid-template-columns:repeat(4,1fr)}}
+/* CHARTS */
+#chartsSection{margin-bottom:1.25rem}
+.charts-grid{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:768px){.charts-grid{grid-template-columns:1fr 1fr}}
+.chart-card{padding:1.1rem;border-radius:14px;background:rgba(30,41,59,0.7);border:1px solid var(--border)}
+/* SETTINGS MODAL */
+#settingsModal{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.25s}
+#settingsModal.open{opacity:1;pointer-events:all}
+.modal-box{background:#1e293b;border:1px solid var(--border);border-radius:20px;padding:1.5rem;width:100%;max-width:420px;max-height:85vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text1)}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.modal-close:hover{background:rgba(96,165,250,0.1);color:var(--accent)}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:0.85rem 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:0.88rem;font-weight:600;color:var(--text1)}
+.setting-desc{font-size:0.72rem;color:var(--text3);margin-top:2px}
+.toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;inset:0;background:#334155;border-radius:999px;cursor:pointer;transition:background 0.2s}
+.toggle input:checked+.toggle-track{background:var(--accent)}
+.toggle-track::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+.toggle input:checked+.toggle-track::after{transform:translateX(18px)}
+.range-input{width:100%;accent-color:var(--accent);margin-top:0.5rem}
+/* VOICE STATUS */
+#voiceStatus{position:fixed;bottom:1.5rem;right:1.5rem;background:#1e293b;border:1px solid var(--accent);border-radius:999px;padding:0.6rem 1.1rem;display:flex;align-items:center;gap:0.6rem;font-size:0.8rem;font-weight:600;color:var(--text1);box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:500;opacity:0;pointer-events:none;transition:opacity 0.25s;transform:translateY(10px)}
+#voiceStatus.active{opacity:1;transform:translateY(0)}
+.voice-dot{width:8px;height:8px;background:#f87171;border-radius:50%;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+/* NOTIFICATION */
+#notification{position:fixed;top:1rem;right:1rem;background:#1e293b;border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;color:var(--text1);z-index:600;transform:translateX(calc(100% + 1.5rem));transition:transform 0.3s;max-width:320px}
+/* LOADING */
+#loadingOverlay{position:fixed;inset:0;background:rgba(11,15,26,0.8);backdrop-filter:blur(8px);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+#loadingOverlay.visible{opacity:1;pointer-events:all}
+.spinner{width:40px;height:40px;border:3px solid rgba(96,165,250,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* EMPTY STATE */
+#emptyState{text-align:center;padding:4rem 1rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
+.empty-icon{font-size:4rem;opacity:0.3}
+.empty-title{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text1)}
+.empty-sub{font-size:0.88rem;color:var(--text3);max-width:300px}
+/* WEATHER BG */
+#weatherBackground{position:fixed;inset:0;z-index:-1;transition:background 2s ease}
+.cloud,.rain-drop,.snow-flake,.star,.sun,.lightning{pointer-events:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.animate-float{animation:float 5s ease-in-out infinite}
+.animate-in{animation:fadeIn 0.5s ease both}
+@media(max-width:479px){
+  #appMain{padding:1rem 0.75rem 2rem}
+  .hero-card{padding:1.25rem}
+  #temperature{font-size:5rem}
+}
+</style></head><body>
+<div id="weatherBackground"></div>
+<!-- HEADER -->
+<header id="appHeader">
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <div class="logo-icon"><i class="fas fa-cloud-bolt"></i></div>
+      <span class="logo-text">WeatherSphere</span>
+    </a>
+    <div class="search-wrap">
+      <i class="fas fa-search search-ic"></i>
+      <input type="text" id="cityInput" placeholder="Search city or location..." autocomplete="off">
+      <div id="suggestions"></div>
     </div>
-
-    <!-- Floating Background Elements - Reduced -->
-    <div class="floating-element text-4xl" style="top: 20%; left: 5%; --duration: 45s;">☁️</div>
-    <div class="floating-element text-3xl" style="top: 70%; left: 85%; --duration: 50s;">🌙</div>
-    
-    <!-- Main Container -->
-    <div class="min-h-screen p-4 md:p-6 relative z-10 max-w-7xl mx-auto">
-        
-        <!-- Header -->
-        <header class="glass rounded-3xl p-6 md:p-7 mb-6 animate-fade-in">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 glass-strong rounded-full flex items-center justify-center animate-pulse">
-                        <i class="fas fa-cloud-sun text-2xl text-white"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl sm:text-4xl font-bold text-white rainbow-text leading-tight">WeatherSphere</h1>
-                        <p class="text-slate-200 text-sm tracking-wide">Hyperlocal Forecast and Climate Insights</p>
-                    </div>
-                </div>
-                
-                <!-- Settings & Controls -->
-                <div class="flex items-center gap-2 relative z-20">
-                    <!-- Theme Selector -->
-                    <div class="relative">
-                        <button id="themeBtn" class="glass p-3 rounded-xl hover:bg-white/20 transition-all duration-300">
-                            <i class="fas fa-palette text-white text-lg"></i>
-                        </button>
-                        <!-- Theme Dropdown -->
-                        <div id="themeDropdown" class="absolute top-full right-0 mt-3 glass rounded-2xl p-5 min-w-56 hidden z-[9999] shadow-2xl border border-white/20">
-                            <p class="text-white text-sm font-semibold mb-4">✨ Choose Theme Color:</p>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <!-- Cosmic -->
-                                <button class="theme-option group relative rounded-lg overflow-hidden transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white" data-theme="cosmic">
-                                    <div class="w-full h-20 rounded-lg group-hover:shadow-2xl transition-all" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);"></div>
-                                    <p class="text-white text-xs font-semibold mt-2 text-center">Cosmic</p>
-                                </button>
-                                <!-- Ocean -->
-                                <button class="theme-option group relative rounded-lg overflow-hidden transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white" data-theme="ocean">
-                                    <div class="w-full h-20 rounded-lg group-hover:shadow-2xl transition-all" style="background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);"></div>
-                                    <p class="text-white text-xs font-semibold mt-2 text-center">Ocean</p>
-                                </button>
-                                <!-- Sunset -->
-                                <button class="theme-option group relative rounded-lg overflow-hidden transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white" data-theme="sunset">
-                                    <div class="w-full h-20 rounded-lg group-hover:shadow-2xl transition-all" style="background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%);"></div>
-                                    <p class="text-white text-xs font-semibold mt-2 text-center">Sunset</p>
-                                </button>
-                                <!-- Forest -->
-                                <button class="theme-option group relative rounded-lg overflow-hidden transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white" data-theme="forest">
-                                    <div class="w-full h-20 rounded-lg group-hover:shadow-2xl transition-all" style="background: linear-gradient(135deg, #14532d 0%, #166534 50%, #15803d 100%);"></div>
-                                    <p class="text-white text-xs font-semibold mt-2 text-center">Forest</p>
-                                </button>
-                                <!-- Night -->
-                                <button class="theme-option group relative rounded-lg overflow-hidden transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white" data-theme="night">
-                                    <div class="w-full h-20 rounded-lg group-hover:shadow-2xl transition-all" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);"></div>
-                                    <p class="text-white text-xs font-semibold mt-2 text-center">Night</p>
-                                </button>
-                                <!-- Aurora -->
-                                <button class="theme-option group relative rounded-lg overflow-hidden transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white" data-theme="aurora">
-                                    <div class="w-full h-20 rounded-lg group-hover:shadow-2xl transition-all" style="background: linear-gradient(135deg, #581c87 0%, #7c3aed 50%, #8b5cf6 100%);"></div>
-                                    <p class="text-white text-xs font-semibold mt-2 text-center">Aurora</p>
-                                </button>
-                                <!-- Volcano -->
-                                <button class="theme-option group relative rounded-lg overflow-hidden transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white" data-theme="volcano">
-                                    <div class="w-full h-20 rounded-lg group-hover:shadow-2xl transition-all" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #dc2626 100%);"></div>
-                                    <p class="text-white text-xs font-semibold mt-2 text-center">Volcano</p>
-                                </button>
-                                <!-- Cyber -->
-                                <button class="theme-option group relative rounded-lg overflow-hidden transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white" data-theme="cyber">
-                                    <div class="w-full h-20 rounded-lg group-hover:shadow-2xl transition-all" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);"></div>
-                                    <p class="text-white text-xs font-semibold mt-2 text-center">Cyber</p>
-                                </button>
-                            </div>
-                            <div class="mt-4 pt-4 border-t border-white/20">
-                                <label class="flex items-center gap-2 text-white text-xs hover:bg-white/10 p-2 rounded-lg cursor-pointer transition-all">
-                                    <input type="checkbox" id="autoThemeToggle" class="rounded w-4 h-4 cursor-pointer">
-                                    <span>Auto Theme</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Voice Assistant -->
-                    <button id="voiceBtn" class="glass p-3 rounded-xl hover:bg-white/20 transition-all duration-300">
-                        <i class="fas fa-microphone text-white text-lg"></i>
-                    </button>
-                    
-                    <!-- Settings -->
-                    <button id="settingsBtn" class="glass p-3 rounded-xl hover:bg-white/20 transition-all duration-300">
-                        <i class="fas fa-cog text-white text-lg"></i>
-                    </button>
-                </div>
-            </div>
-        </header>
-        
-        <!-- Search Section -->
-        <section class="glass rounded-3xl p-5 md:p-6 mb-6 animate-slide-up">
-            <div class="flex flex-col sm:flex-row gap-4">
-                <div class="flex-1 relative">
-                    <input 
-                        type="text" 
-                        id="cityInput" 
-                        placeholder="Search for any city or location..."
-                        class="w-full bg-white/10 border border-white/20 rounded-2xl px-5 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
-                    >
-                    <div id="suggestions" class="absolute top-full left-0 right-0 mt-2 glass rounded-xl max-h-60 overflow-y-auto hidden z-50"></div>
-                </div>
-                <div class="flex gap-2">
-                    <button id="searchBtn" class="glass px-6 py-3 rounded-2xl hover:bg-white/20 transition-all duration-300 flex items-center gap-2 font-semibold">
-                        <i class="fas fa-search text-white"></i>
-                        <span class="text-white hidden sm:inline">Search</span>
-                    </button>
-                    <button id="locationBtn" class="glass px-6 py-3 rounded-2xl hover:bg-white/20 transition-all duration-300">
-                        <i class="fas fa-location-arrow text-white"></i>
-                    </button>
-                    <button id="voiceSearchBtn" class="glass px-6 py-3 rounded-2xl hover:bg-white/20 transition-all duration-300">
-                        <i class="fas fa-microphone text-white"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Current Weather Card -->
-        <section id="currentWeather" class="glass rounded-3xl p-6 md:p-8 mb-6 animate-bounce-in hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Main Weather Info -->
-                <div class="text-center lg:text-left">
-                    <div class="flex items-center justify-center lg:justify-start gap-4 mb-4">
-                        <div id="weatherIcon" class="text-6xl animate-float">🌤️</div>
-                        <div>
-                            <h2 id="cityName" class="text-4xl font-bold text-white mb-1">Loading...</h2>
-                            <p id="countryName" class="text-slate-200 text-lg">Getting location...</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-center lg:justify-start gap-4 mb-4">
-                        <span id="temperature" class="text-7xl md:text-8xl font-light text-white">--°</span>
-                        <div class="text-left">
-                            <p id="description" class="text-xl text-slate-200 capitalize mb-1">Loading weather...</p>
-                            <p id="feelsLike" class="text-lg text-cyan-200">Feels like --°</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Unit Toggle -->
-                    <div class="flex justify-center lg:justify-start">
-                        <div class="glass-subtle rounded-full p-1">
-                            <button id="celsiusBtn" class="px-4 py-2 rounded-full text-white transition-all duration-300 active">°C</button>
-                            <button id="fahrenheitBtn" class="px-4 py-2 rounded-full text-white transition-all duration-300">°F</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Weather Details Grid -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="glass-subtle rounded-xl p-4 text-center">
-                        <i class="fas fa-eye text-2xl text-blue-300 mb-2"></i>
-                        <p class="text-white text-lg font-semibold" id="visibility">-- km</p>
-                        <p class="text-blue-200 text-sm">Visibility</p>
-                    </div>
-                    <div class="glass-subtle rounded-xl p-4 text-center">
-                        <i class="fas fa-tint text-2xl text-blue-300 mb-2"></i>
-                        <p class="text-white text-lg font-semibold" id="humidity">--%</p>
-                        <p class="text-blue-200 text-sm">Humidity</p>
-                    </div>
-                    <div class="glass-subtle rounded-xl p-4 text-center">
-                        <i class="fas fa-wind text-2xl text-blue-300 mb-2"></i>
-                        <p class="text-white text-lg font-semibold" id="windSpeed">-- km/h</p>
-                        <p class="text-blue-200 text-sm">Wind Speed</p>
-                    </div>
-                    <div class="glass-subtle rounded-xl p-4 text-center">
-                        <i class="fas fa-thermometer-half text-2xl text-blue-300 mb-2"></i>
-                        <p class="text-white text-lg font-semibold" id="pressure">-- hPa</p>
-                        <p class="text-blue-200 text-sm">Pressure</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sun-cycle-strip">
-                <div class="flex items-center justify-between text-sm text-slate-200 mb-3">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-sun text-amber-300"></i>
-                        <span id="sunriseTime">Sunrise --:--</span>
-                    </div>
-                    <div class="text-cyan-200 font-semibold" id="dayLength">Daylight --h --m</div>
-                    <div class="flex items-center gap-2">
-                        <span id="sunsetTime">Sunset --:--</span>
-                        <i class="fas fa-moon text-indigo-200"></i>
-                    </div>
-                </div>
-                <div class="sun-track">
-                    <div id="sunProgress" class="sun-track-fill"></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="hourlySection" class="glass rounded-3xl p-6 mb-6 hidden">
-            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <i class="fas fa-clock text-cyan-300"></i>
-                Next 24 Hours
-            </h3>
-            <div id="hourlyContainer" class="hourly-scroll"></div>
-        </section>
-        
-        <!-- Charts Section -->
-        <section id="chartsSection" class="glass rounded-3xl p-6 mb-6 hidden">
-            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <i class="fas fa-chart-line text-blue-300"></i>
-                Weather Analytics
-            </h3>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="glass-subtle rounded-xl p-4">
-                    <canvas id="temperatureChart" width="400" height="200"></canvas>
-                </div>
-                <div class="glass-subtle rounded-xl p-4">
-                    <canvas id="humidityChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-        </section>
-        
-        <!-- 5-Day Forecast -->
-        <section id="forecastSection" class="glass rounded-3xl p-6 mb-6 hidden">
-            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <i class="fas fa-calendar-alt text-blue-300"></i>
-                5-Day Forecast
-            </h3>
-            <div id="forecastContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <!-- Forecast cards will be inserted here -->
-            </div>
-        </section>
-        
-        <!-- Air Quality Section -->
-        <section id="airQualitySection" class="glass rounded-3xl p-6 mb-6 hidden">
-            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <i class="fas fa-leaf text-green-300"></i>
-                Air Quality Index
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="glass-subtle rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-white mb-1" id="aqiValue">--</div>
-                    <div class="text-sm text-blue-200 mb-2">AQI</div>
-                    <div class="px-3 py-1 rounded-full text-xs font-medium" id="aqiStatus">Loading...</div>
-                </div>
-                <div class="glass-subtle rounded-xl p-4 text-center">
-                    <div class="text-lg font-semibold text-white" id="coValue">-- μg/m³</div>
-                    <div class="text-sm text-blue-200">CO</div>
-                </div>
-                <div class="glass-subtle rounded-xl p-4 text-center">
-                    <div class="text-lg font-semibold text-white" id="no2Value">-- μg/m³</div>
-                    <div class="text-sm text-blue-200">NO₂</div>
-                </div>
-                <div class="glass-subtle rounded-xl p-4 text-center">
-                    <div class="text-lg font-semibold text-white" id="pm25Value">-- μg/m³</div>
-                    <div class="text-sm text-blue-200">PM2.5</div>
-                </div>
-            </div>
-        </section>
+    <div class="header-actions">
+      <button class="icon-btn" id="locationBtn" title="My location"><i class="fas fa-location-crosshairs"></i></button>
+      <button class="icon-btn" id="voiceBtn" title="Voice search"><i class="fas fa-microphone"></i></button>
+      <button class="icon-btn" id="settingsBtn" title="Settings"><i class="fas fa-sliders"></i></button>
     </div>
-    
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="glass rounded-2xl p-6 m-4 max-w-md w-full animate-bounce-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-white">Settings</h3>
-                <button id="closeSettings" class="text-white hover:text-blue-300 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <!-- Voice Settings -->
-            <div class="space-y-4">
-                <div class="glass-subtle rounded-xl p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-white font-medium">Voice Assistant</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="voiceToggle" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="text-sm text-blue-200 block mb-1">Voice Speed</label>
-                            <input type="range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1" class="w-full">
-                        </div>
-                        <div>
-                            <label class="text-sm text-blue-200 block mb-1">Voice Pitch</label>
-                            <input type="range" id="voicePitch" min="0" max="2" step="0.1" value="1" class="w-full">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="glass-subtle rounded-xl p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-white font-medium">Voice Announcements</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="announcementToggle" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-                    <p class="text-sm text-blue-300">Automatically announce weather updates</p>
-                </div>
-                
-                <div class="glass-subtle rounded-xl p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-white font-medium">Smart Suggestions</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="suggestionsToggle" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-                    <p class="text-sm text-blue-300">Show location suggestions while typing</p>
-                </div>
-            </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main id="appMain">
+  <!-- EMPTY STATE -->
+  <div id="emptyState">
+    <div class="empty-icon animate-float">🌤️</div>
+    <h2 class="empty-title">Check the Weather</h2>
+    <p class="empty-sub">Search for any city or use your current location to get real-time weather.</p>
+  </div>
+
+  <!-- HERO + STATS -->
+  <section id="heroSection" class="hidden animate-in">
+    <!-- Hero Card -->
+    <div class="hero-card card">
+      <div class="hero-location">
+        <i class="fas fa-map-pin" style="color:var(--accent);font-size:0.8rem"></i>
+        <span id="countryName" class="hero-country">--</span>
+      </div>
+      <h2 id="cityName" class="hero-city">--</h2>
+      <div class="hero-temp-row">
+        <div id="weatherIcon" class="animate-float">🌤️</div>
+        <span id="temperature">--°</span>
+        <div class="hero-temp-meta">
+          <p id="description" style="font-size:1rem;font-weight:600;color:var(--text1);text-transform:capitalize">--</p>
+          <p id="feelsLike" style="font-size:0.8rem;color:var(--accent);margin-top:2px">Feels like --</p>
         </div>
-    </div>
-    
-    <!-- Voice Status Indicator -->
-    <div id="voiceStatus" class="fixed bottom-4 right-4 glass rounded-full p-4 hidden animate-bounce-in">
-        <div class="flex items-center gap-2">
-            <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-            <span class="text-white text-sm">Listening...</span>
+      </div>
+      <div class="unit-toggle">
+        <button class="unit-btn active" id="celsiusBtn">°C</button>
+        <button class="unit-btn" id="fahrenheitBtn">°F</button>
+      </div>
+      <!-- Sun Strip -->
+      <div class="sun-strip">
+        <div class="sun-row">
+          <span><i class="fas fa-sun" style="color:#fbbf24;margin-right:4px"></i><span id="sunriseTime">--:--</span></span>
+          <span id="dayLength" style="color:var(--accent);font-weight:600">--</span>
+          <span><span id="sunsetTime">--:--</span><i class="fas fa-moon" style="color:#818cf8;margin-left:4px"></i></span>
         </div>
+        <div class="sun-bar"><div id="sunProgress" class="sun-bar-fill" style="width:0%"></div></div>
+      </div>
     </div>
-    
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="glass rounded-2xl p-8 text-center">
-            <div class="spinner mx-auto mb-4"></div>
-            <p class="text-white text-lg">Loading weather data...</p>
+    <!-- Stats Card -->
+    <div class="stats-card card">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <i class="fas fa-eye stat-icon"></i>
+          <span class="stat-value" id="visibility">-- km</span>
+          <span class="stat-label">Visibility</span>
         </div>
-    </div>
-    
-    <!-- Notification -->
-    <div id="notification" class="fixed top-4 right-4 glass rounded-xl p-4 transform translate-x-full transition-transform duration-300 z-50">
-        <div class="flex items-center gap-3">
-            <i id="notificationIcon" class="fas fa-info-circle text-blue-300"></i>
-            <span id="notificationText" class="text-white">Notification</span>
+        <div class="stat-item">
+          <i class="fas fa-droplet stat-icon"></i>
+          <span class="stat-value" id="humidity">--%</span>
+          <span class="stat-label">Humidity</span>
         </div>
+        <div class="stat-item">
+          <i class="fas fa-wind stat-icon"></i>
+          <span class="stat-value" id="windSpeed">-- km/h</span>
+          <span class="stat-label">Wind</span>
+        </div>
+        <div class="stat-item">
+          <i class="fas fa-gauge-high stat-icon"></i>
+          <span class="stat-value" id="pressure">-- hPa</span>
+          <span class="stat-label">Pressure</span>
+        </div>
+      </div>
     </div>
-    
-    <!-- External Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+  </section>
+
+  <!-- HOURLY -->
+  <section id="hourlySection" class="hidden animate-in">
+    <div class="section-hdr"><i class="fas fa-clock"></i> Next 24 Hours</div>
+    <div id="hourlyContainer" class="hourly-scroll"></div>
+  </section>
+
+  <!-- 5-DAY FORECAST -->
+  <section id="forecastSection" class="hidden animate-in">
+    <div class="section-hdr"><i class="fas fa-calendar-days"></i> 5-Day Forecast</div>
+    <div id="forecastContainer" class="forecast-grid"></div>
+  </section>
+
+  <!-- AIR QUALITY -->
+  <section id="airQualitySection" class="hidden animate-in">
+    <div class="section-hdr"><i class="fas fa-leaf"></i> Air Quality</div>
+    <div class="aqi-grid">
+      <div class="stat-item">
+        <i class="fas fa-chart-simple stat-icon"></i>
+        <span class="stat-value" id="aqiValue">--</span>
+        <span class="stat-label">AQI</span>
+        <span id="aqiStatus" style="font-size:0.68rem;font-weight:600;color:var(--accent);margin-top:2px">--</span>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-smog stat-icon"></i>
+        <span class="stat-value" id="coValue">--</span>
+        <span class="stat-label">CO μg/m³</span>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-cloud stat-icon"></i>
+        <span class="stat-value" id="no2Value">--</span>
+        <span class="stat-label">NO₂ μg/m³</span>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-circle-dot stat-icon"></i>
+        <span class="stat-value" id="pm25Value">--</span>
+        <span class="stat-label">PM2.5 μg/m³</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHARTS -->
+  <section id="chartsSection" class="hidden animate-in">
+    <div class="section-hdr"><i class="fas fa-chart-line"></i> Weather Analytics</div>
+    <div class="charts-grid">
+      <div class="chart-card"><canvas id="temperatureChart" height="160"></canvas></div>
+      <div class="chart-card"><canvas id="humidityChart" height="160"></canvas></div>
+    </div>
+  </section>
+</main>
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-sliders" style="color:var(--accent);margin-right:6px"></i>Settings</span>
+      <button class="modal-close" id="closeSettings"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Voice Assistant</div><div class="setting-desc">Enable voice search and commands</div></div>
+      <label class="toggle"><input type="checkbox" id="voiceToggle" checked><span class="toggle-track"></span></label>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Auto Announcements</div><div class="setting-desc">Read weather aloud after search</div></div>
+      <label class="toggle"><input type="checkbox" id="announcementToggle"><span class="toggle-track"></span></label>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">City Suggestions</div><div class="setting-desc">Show suggestions while typing</div></div>
+      <label class="toggle"><input type="checkbox" id="suggestionsToggle" checked><span class="toggle-track"></span></label>
+    </div>
+    <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:0.4rem">
+      <div class="setting-label">Voice Speed</div>
+      <input type="range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1" class="range-input">
+    </div>
+    <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:0.4rem">
+      <div class="setting-label">Voice Pitch</div>
+      <input type="range" id="voicePitch" min="0" max="2" step="0.1" value="1" class="range-input">
+    </div>
+  </div>
+</div>
+
+<!-- VOICE STATUS -->
+<div id="voiceStatus"><span class="voice-dot"></span>Listening...</div>
+
+<!-- LOADING -->
+<div id="loadingOverlay"><div class="spinner"></div></div>
+
+<!-- NOTIFICATION -->
+<div id="notification">
+  <i id="notificationIcon" class="fas fa-info-circle" style="color:var(--accent)"></i>
+  <span id="notificationText"></span>
+</div>
+
+<!-- Hidden elements script.js expects -->
+<div id="rainContainer" style="display:none"></div>
+<div id="snowContainer" style="display:none"></div>
+<div id="starsContainer" style="display:none"></div>
+<div id="lightningEffect" style="display:none"></div>
+<div id="sunElement" style="display:none"></div>
+
+<script>
+// Stubs for elements removed from UI that script.js still references
+(function(){
+  function stub(tag, id, type) {
+    if (!document.getElementById(id)) {
+      var el = document.createElement(tag);
+      el.id = id;
+      if (type) el.type = type;
+      el.style.display = 'none';
+      document.body.appendChild(el);
+    }
+  }
+  stub('button','searchBtn');
+  stub('button','voiceSearchBtn');
+  stub('input','autoThemeToggle','checkbox');
+  stub('button','themeBtn');
+  var dd = document.createElement('div');
+  dd.id = 'themeDropdown';
+  dd.className = 'hidden';
+  dd.style.display = 'none';
+  if (!document.getElementById('themeDropdown')) document.body.appendChild(dd);
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="script.js"></script>
+<script>
+// Run after script.js loads — patch utilities to use new CSS classes
+(function(){
+  // Settings modal
+  var modal = document.getElementById('settingsModal');
+  var settingsBtn = document.getElementById('settingsBtn');
+  var closeBtn = document.getElementById('closeSettings');
+  if(settingsBtn) settingsBtn.addEventListener('click', function(){ modal.classList.add('open'); });
+  if(closeBtn) closeBtn.addEventListener('click', function(){ modal.classList.remove('open'); });
+  if(modal) modal.addEventListener('click', function(e){ if(e.target===modal) modal.classList.remove('open'); });
+
+  // Loading overlay — use .visible class
+  var lo = document.getElementById('loadingOverlay');
+  if(window.utils && lo){
+    window.utils.showLoading = function(show){
+      if(show) lo.classList.add('visible'); else lo.classList.remove('visible');
+    };
+  }
+
+  // Notification — slide in/out
+  var notif = document.getElementById('notification');
+  if(window.utils && notif){
+    window.utils.showNotification = function(msg, type, dur){
+      type = type||'info'; dur = dur||3000;
+      var icons={info:'fa-info-circle',success:'fa-check-circle',warning:'fa-exclamation-triangle',error:'fa-times-circle'};
+      var colors={info:'var(--accent)',success:'#34d399',warning:'#fbbf24',error:'#f87171'};
+      var ic = document.getElementById('notificationIcon');
+      var tx = document.getElementById('notificationText');
+      if(ic){ ic.className='fas '+(icons[type]||icons.info); ic.style.color=colors[type]||colors.info; }
+      if(tx) tx.textContent = msg;
+      notif.style.transform = 'translateX(0)';
+      clearTimeout(notif._t);
+      notif._t = setTimeout(function(){ notif.style.transform='translateX(calc(100% + 1.5rem))'; }, dur);
+    };
+  }
+
+  // Voice status indicator
+  var vs = document.getElementById('voiceStatus');
+  if(window.voiceAssistant && vs){
+    window.voiceAssistant.showVoiceStatus = function(show){
+      if(show) vs.classList.add('active'); else vs.classList.remove('active');
+    };
+  }
+})();
+</script>
+</body></html>
