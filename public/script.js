@@ -1534,9 +1534,14 @@ class WeatherApp {
     updateUnitButtons() {
         const celsiusBtn = document.getElementById('celsiusBtn');
         const fahrenheitBtn = document.getElementById('fahrenheitBtn');
-        
-        celsiusBtn.classList.toggle('bg-white/20', appState.currentUnit === 'celsius');
-        fahrenheitBtn.classList.toggle('bg-white/20', appState.currentUnit === 'fahrenheit');
+
+        if (appState.currentUnit === 'celsius') {
+            celsiusBtn.classList.add('active');
+            fahrenheitBtn.classList.remove('active');
+        } else {
+            fahrenheitBtn.classList.add('active');
+            celsiusBtn.classList.remove('active');
+        }
     }
 
     // Theme modal functions removed - theme is now in header dropdown
