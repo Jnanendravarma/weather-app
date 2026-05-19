@@ -203,8 +203,16 @@ class APIService {
         return await this.request(`/weather?city=${encodeURIComponent(city)}`);
     }
 
+    static async getWeatherByCoords(lat, lon) {
+        return await this.request(`/weather?lat=${lat}&lon=${lon}`);
+    }
+
     static async getForecast(city) {
         return await this.request(`/forecast?city=${encodeURIComponent(city)}`);
+    }
+
+    static async getForecastByCoords(lat, lon) {
+        return await this.request(`/forecast?lat=${lat}&lon=${lon}`);
     }
 
     static async getAirPollution(lat, lon) {
@@ -230,7 +238,7 @@ class VoiceAssistant {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.recognition = new SpeechRecognition();
             this.recognition.continuous = false;
-            this.recognition.interimResults = false;
+            this.recognition.interimResults = true;
             this.recognition.lang = 'en-US';
             this.recognition.maxAlternatives = 5; // Get multiple alternatives
 
@@ -244,32 +252,39 @@ class VoiceAssistant {
             this.recognition.onend = () => {
                 appState.isListening = false;
                 this.showVoiceStatus(false);
+                // Reset status text
+                const statusText = document.getElementById('voiceStatusText');
+                if (statusText) statusText.textContent = 'Listening...';
                 console.log('Voice recognition ended');
             };
 
             this.recognition.onresult = (event) => {
-                console.log('Speech recognition results:', event.results);
-                
-                // Try all alternatives
-                const results = Array.from(event.results[0]);
-                console.log('All speech alternatives:', results.map(r => r.transcript));
-                
-                let processed = false;
-                for (const result of results) {
-                    const transcript = result.transcript.toLowerCase().trim();
-                    console.log(`Trying transcript: "${transcript}" (confidence: ${result.confidence})`);
-                    
-                    if (transcript.length > 0) {
-                        this.processVoiceCommand(transcript);
-                        processed = true;
-                        break;
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
                     }
                 }
-                
-                if (!processed) {
-                    this.speak('Sorry, I couldn\'t understand what you said. Please try again.');
+
+                // Show interim text live in status bar
+                const statusText = document.getElementById('voiceStatusText');
+                if (statusText) {
+                    statusText.textContent = interimTranscript || finalTranscript || 'Listening...';
+                }
+
+                // Only process when we have a final result
+                if (finalTranscript.trim().length > 0) {
+                    const command = finalTranscript.toLowerCase().trim();
+                    console.log(`Final transcript: "${command}"`);
+                    this.processVoiceCommand(command);
                 }
             };
+
 
             this.recognition.onerror = (event) => {
                 console.error('Voice recognition error:', event.error);
@@ -452,8 +467,15 @@ class VoiceAssistant {
             }
         }
 
-        // If nothing matches, provide helpful response
-        this.speak('I understand commands like: weather for London, change theme, get my location, or help for more options.');
+        // Smart fallback: treat the whole phrase as a city name
+        const cityGuess = command.trim().replace(/^(search|show|get|find|check)\s+/i, '');
+        if (cityGuess.length > 0 && cityGuess.split(' ').length <= 4) {
+            console.log(`Voice fallback — treating as city: "${cityGuess}"`);
+            weatherApp.searchWeather(cityGuess);
+            this.speak(`Searching weather for ${cityGuess}`);
+        } else {
+            this.speak('I understand commands like: weather for London, get my location, or help for more options.');
+        }
     }
 
     extractCityFromCommand(command) {
@@ -484,7 +506,26 @@ class VoiceAssistant {
 
     showVoiceStatus(show) {
         const status = document.getElementById('voiceStatus');
-        status.classList.toggle('hidden', !show);
+        if (show) {
+            status.classList.add('active');
+        } else {
+            status.classList.remove('active');
+        }
+        // Also update the mic button visual state
+        const voiceBtn = document.getElementById('voiceBtn');
+        if (voiceBtn) {
+            if (show) {
+                voiceBtn.style.background = 'rgba(248,113,113,0.2)';
+                voiceBtn.style.borderColor = '#f87171';
+                voiceBtn.style.color = '#f87171';
+                voiceBtn.title = 'Stop listening';
+            } else {
+                voiceBtn.style.background = '';
+                voiceBtn.style.borderColor = '';
+                voiceBtn.style.color = '';
+                voiceBtn.title = 'Voice search';
+            }
+        }
     }
 
     announceWeather(weather) {
@@ -1022,41 +1063,78 @@ class WeatherApp {
         }
 
         utils.showLoading(true);
-        utils.showNotification('Getting your location...', 'info');
+        utils.showNotification('📍 Getting your precise location...', 'info', 4000);
 
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 try {
-                    const { latitude, longitude } = position.coords;
-                    
-                    // Reverse geocoding to get city name (simplified)
-                    const response = await fetch(
-                        `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=demo`
-                    );
-                    
-                    if (response.ok) {
-                        const [location] = await response.json();
-                        const city = location.name || 'Current Location';
-                        this.searchWeather(city);
-                    } else {
-                        // Fallback: search by coordinates
-                        this.searchWeather(`${latitude},${longitude}`);
+                    const { latitude, longitude, accuracy } = position.coords;
+                    console.log(`📍 GPS coords: ${latitude}, ${longitude} (accuracy: ${Math.round(accuracy)}m)`);
+
+                    // Fetch weather directly by coordinates — backend returns real city name
+                    const weatherData = await APIService.getWeatherByCoords(latitude, longitude);
+                    const forecastData = await APIService.getForecastByCoords(latitude, longitude);
+
+                    appState.currentWeather = weatherData;
+                    appState.forecast = forecastData;
+                    appState.currentLocation = weatherData.name;
+
+                    this.addWeatherTransition();
+                    this.displayCurrentWeather(weatherData);
+                    this.displayHourlyForecast(forecastData);
+                    this.displayForecast(forecastData);
+
+                    // Air quality
+                    try {
+                        const airQualityData = await APIService.getAirPollution(latitude, longitude);
+                        this.displayAirQuality(airQualityData);
+                    } catch (e) {
+                        console.error('Air quality fetch failed:', e);
                     }
+
+                    chartManager.updateCharts(forecastData.list);
+
+                    if (appState.settings.voiceEnabled && appState.settings.announcementsEnabled) {
+                        voiceAssistant.announceWeather(weatherData);
+                    }
+
+                    localStorage.setItem('lastLocation', weatherData.name);
+                    document.getElementById('cityInput').value = '';
+
+                    utils.showNotification(
+                        `📍 Weather loaded for ${weatherData.name}, ${weatherData.sys.country} (±${Math.round(accuracy)}m accuracy)`,
+                        'success',
+                        4000
+                    );
+
                 } catch (error) {
-                    console.error('Geolocation error:', error);
-                    utils.showNotification('Failed to get location data', 'error');
+                    console.error('Location weather fetch error:', error);
+                    utils.showNotification('Failed to get weather for your location. Please try again.', 'error');
+                } finally {
                     utils.showLoading(false);
                 }
             },
             (error) => {
-                console.error('Geolocation error:', error);
-                utils.showNotification('Unable to access your location', 'error');
+                console.error('Geolocation permission error:', error);
+                let msg = 'Unable to access your location. ';
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        msg += 'Please allow location access in your browser.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        msg += 'Location information unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        msg += 'Location request timed out.';
+                        break;
+                }
+                utils.showNotification(msg, 'error', 5000);
                 utils.showLoading(false);
             },
             {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 300000
+                enableHighAccuracy: true,   // Use GPS for precise location
+                timeout: 15000,             // Wait up to 15s for GPS lock
+                maximumAge: 0              // Always get fresh position
             }
         );
     }

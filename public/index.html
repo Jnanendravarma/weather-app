@@ -122,6 +122,8 @@ h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.03em}
 #voiceStatus.active{opacity:1;transform:translateY(0)}
 .voice-dot{width:8px;height:8px;background:#f87171;border-radius:50%;animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+#voiceStatusText{transition:opacity 0.2s}
+@keyframes mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(248,113,113,0.4)}70%{box-shadow:0 0 0 8px rgba(248,113,113,0)}}
 /* NOTIFICATION */
 #notification{position:fixed;top:1rem;right:1rem;background:#1e293b;border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;color:var(--text1);z-index:600;transform:translateX(calc(100% + 1.5rem));transition:transform 0.3s;max-width:320px}
 /* LOADING */
@@ -316,7 +318,7 @@ h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.03em}
 </div>
 
 <!-- VOICE STATUS -->
-<div id="voiceStatus"><span class="voice-dot"></span>Listening...</div>
+<div id="voiceStatus"><span class="voice-dot"></span><span id="voiceStatusText">Listening...</span></div>
 
 <!-- LOADING -->
 <div id="loadingOverlay"><div class="spinner"></div></div>
